@@ -24,8 +24,8 @@ const createMinesBet = async (req, res) => {
     try {
         const user = req.user
 
-        const userIsPlaying = await Games.exists({game: 'mines', user: user._id, active: true})
-        if(userIsPlaying) return res.status(400).json({ message: 'already playing' })
+        const foundGame = await Games.findOne({game: 'mines', user: user._id, active: true})
+        if(foundGame) return res.status(400).json({ message: 'already playing' })
 
         const { variables } = req.body
         if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
