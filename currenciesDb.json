@@ -1,0 +1,162 @@
+[
+    {
+        "symbol": "btc",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "bitcoin"
+    },
+    {
+        "symbol": "eth",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "ethereum"
+    },
+    {
+        "symbol": "ltc",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "litecoin"
+    },
+    {
+        "symbol": "usdt",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "tether"
+    },
+    {
+        "symbol": "doge",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "dogecoin"
+    },
+    {
+        "symbol": "bch",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "binance-peg-bitcoin-cash"
+    },
+    {
+        "symbol": "xrp",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "binance-peg-xrp"
+    },
+    {
+        "symbol": "eos",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "binance-peg-eos"
+    },
+    {
+        "symbol": "trx",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "tron"
+    },
+    {
+        "symbol": "bnb",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "binancecoin"
+    },
+    {
+        "symbol": "usdc",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "usd-coin"
+    },
+    {
+        "symbol": "ape",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "apecoin"
+    },
+    {
+        "symbol": "busd",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "binance-peg-busd"
+    },
+    {
+        "symbol": "cro",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "crypto-com-chain"
+    },
+    {
+        "symbol": "dai",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "dai"
+    },
+    {
+        "symbol": "link",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "chainlink"
+    },
+    {
+        "symbol": "sand",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "san-diego-coin"
+    },
+    {
+        "symbol": "shib",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "shiba-inu"
+    },
+    {
+        "symbol": "uni",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "unicorn-token"
+    },
+    {
+        "symbol": "matic",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "matic-network"
+    },
+    {
+        "symbol": "eur",
+        "prefix": "€",
+        "dicimals": 2
+    },
+    {
+        "symbol": "jpy",
+        "prefix": "¥",
+        "dicimals": 2
+    },
+    {
+        "symbol": "brl",
+        "prefix": "R$",
+        "dicimals": 2
+    },
+    {
+        "symbol": "cad",
+        "prefix": "CA$",
+        "dicimals": 2
+    },
+    {
+        "symbol": "ars",
+        "prefix": "ARS ",
+        "dicimals": 2
+    },
+    {
+        "symbol": "clp",
+        "prefix": "CLP ",
+        "dicimals": 2
+    },
+    {
+        "symbol": "inr",
+        "prefix": "₹ ",
+        "dicimals": 2
+    },
+    {
+        "symbol": "pen",
+        "prefix": "PEN ",
+        "dicimals": 2
+    }
+]
