@@ -2,8 +2,10 @@ const express = require('express')
 const router = express.Router()
 
 const authJwt = require('../middlewares/authJwt')
-const { createMinesBet, handleMinesNextMove, handleMinesCashout } = require('../games/mines')
+const { createMinesBet, handleMinesNextMove, handleMinesCashout, getActiveBet } = require('../games/mines')
 const { createVaultDeposit, createVaultWithdraw } = require('../middlewares/vault')
+const { getConversionRates } = require('../middlewares/currencyConversionRate')
+
 
 
 router.post( '/graphql', authJwt, async (req, res) => {
@@ -19,11 +21,17 @@ router.post( '/graphql', authJwt, async (req, res) => {
         } else if ( query === 'minesCashout' ) {
             handleMinesCashout(req, res)
             return
+        } else if ( query === 'minesActiveBet' ) {
+            getActiveBet(req, res)
+            return
         } else if ( query === 'createVaultDeposit' ) {
             createVaultDeposit(req, res)
             return
         } else if ( query === 'createVaultWithdrawal' ) {
             createVaultWithdraw(req, res)
+            return
+        } else if ( query === 'currencyConversionRate' ) {
+            getConversionRates(req, res)
             return
         }
 

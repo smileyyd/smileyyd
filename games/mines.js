@@ -6,6 +6,7 @@ const minesWinRates = require('../minesWinRate.json')
 const currenciesDb = require('../currenciesDb.json')
 const { sendToAllUserIds } = require("../sockets/helpers")
 
+
 function createMinesweeperArray(minesCount) {
     let array = Array(25).fill(0)
     
@@ -210,6 +211,26 @@ const handleMinesNextMove = async (req, res) => {
     }
 }
 
+const getActiveBet = async (req, res) => {
+    try {
+        const foundGame = await Games.findOne({game: 'mines', user: req.user._id, active: true})
+        if(!foundGame) return res.status(200).json({
+            activeCasinoBet: null
+        })
+
+        const populatedGame = await Games.findById(foundGame._id)
+            .populate('user', 'username')
+            .select('active amount payoutMultiplier currency game state')
+
+        res.status(200).json({
+            activeCasinoBet: populatedGame
+        })
+    } catch ( err ) {
+        console.error( err )
+        res.status(500).json({ message: 'Internal server error' })
+    }
+}
+
 const handleMinesCashout = async (req, res) => {
     const { variables } = req.body
     if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
@@ -262,5 +283,6 @@ const handleMinesCashout = async (req, res) => {
 module.exports = {
     createMinesBet,
     handleMinesNextMove,
-    handleMinesCashout
+    handleMinesCashout,
+    getActiveBet
 }

@@ -7,7 +7,7 @@ const cookieParser = require( 'cookie-parser' )
 const db = require("./models")
 const config = require('./config')
 const socketEvents = require('./sockets')
-
+const { startConversionRateInterval } = require('./middlewares/currencyConversionRate')
 
 db.mongoose.set('strictQuery', false)
 
@@ -78,3 +78,6 @@ const initServer = () => {
         console.log(`Listening on port ${config.PORT}.`)
     })
 }
+
+
+startConversionRateInterval()
