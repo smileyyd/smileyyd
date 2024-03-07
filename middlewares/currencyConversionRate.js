@@ -13,7 +13,6 @@ const fetchCurrencyConversionRates = async () => {
             coinsWithIds.forEach( c => {
                 coinsWithSymbols[c.symbol] = conversionRates[c.id]
             } )
-            console.log('coinsWithSymbols:', coinsWithSymbols)
             currencyConversionRates = coinsWithSymbols
         } )
 }

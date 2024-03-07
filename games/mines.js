@@ -62,11 +62,15 @@ const createMinesBet = async (req, res) => {
             minesMap
         })
 
-        let toRemoveAmount
-        if( Number(formattedUmValue) < Number(formattedValue) ) toRemoveAmount = Number(formattedUmValue)
-            else toRemoveAmount = Number(formattedValue)
 
-        const newUser = await User.findOneAndUpdate({_id: user._id}, { $inc: { [`wallet.${currency}.value`]: -toRemoveAmount } }, { new: true })
+        let newAmount 
+        if( Number(formattedUmValue) < Number(formattedValue) ) {
+            newAmount = parseFloat( 0 ).toFixed(foundCoin.dicimals)
+        } else {
+            newAmount = parseFloat( Number(formattedUmValue) - Number(formattedValue) ).toFixed(foundCoin.dicimals)
+        }
+
+        const newUser = await User.findOneAndUpdate({_id: user._id}, { $set: { [`wallet.${currency}.value`]: newAmount } }, { new: true })
 
         sendToAllUserIds(req.io, [newUser._id.toString()], 'UserBalances', {
             wallet: newUser.wallet

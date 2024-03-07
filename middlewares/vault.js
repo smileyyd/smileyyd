@@ -23,14 +23,23 @@ const createVaultDeposit = async (req, res) => {
         if( Number(formattedValue) === 0 ) return res.status(400).json({ message: 'Insufficient amount' })
         if( Number(formattedUmValue) < Number(formattedValue) ) return res.status(400).json({ message: 'Insufficient amount' })
 
-        let toRemoveAmount
-        if( Number(formattedUmValue) < Number(formattedValue) ) toRemoveAmount = Number(formattedUmValue)
-            else toRemoveAmount = Number(formattedValue)
+        let toAddAmount
+        if( Number(formattedUmValue) < Number(formattedValue) ) toAddAmount = Number(formattedUmValue)
+            else toAddAmount = Number(formattedValue)
+
+        let newAmount
+        if( Number(formattedUmValue) < Number(formattedValue) ) {
+            newAmount = parseFloat( 0 ).toFixed(foundCoin.dicimals)
+        } else {
+            newAmount = parseFloat( Number(formattedUmValue) - Number(formattedValue) ).toFixed(foundCoin.dicimals)
+        }
 
         await User.findOneAndUpdate({_id: user._id}, {
+            $set: {
+                [`wallet.${currency}.value`]: newAmount
+            },
             $inc: {
-                [`wallet.${currency}.value`]: -toRemoveAmount,
-                [`wallet.${currency}.vault`]: toRemoveAmount,
+                [`wallet.${currency}.vault`]: toAddAmount
             }
         }, { new: true })
 
@@ -73,14 +82,23 @@ const createVaultWithdraw = async (req, res) => {
         if( Number(formattedValue) === 0 ) return res.status(400).json({ message: 'Insufficient amount' })
         if( Number(formattedUmValue) < Number(formattedValue) ) return res.status(400).json({ message: 'Insufficient amount' })
 
-        let toRemoveAmount
-        if( Number(formattedUmValue) < Number(formattedValue) ) toRemoveAmount = Number(formattedUmValue)
-            else toRemoveAmount = Number(formattedValue)
+        let toAddAmount
+        if( Number(formattedUmValue) < Number(formattedValue) ) toAddAmount = Number(formattedUmValue)
+            else toAddAmount = Number(formattedValue)
+
+        let newAmount
+        if( Number(formattedUmValue) < Number(formattedValue) ) {
+            newAmount = parseFloat( 0 ).toFixed(foundCoin.dicimals)
+        } else {
+            newAmount = parseFloat( Number(formattedUmValue) - Number(formattedValue) ).toFixed(foundCoin.dicimals)
+        }
 
         await User.findOneAndUpdate({_id: user._id}, {
             $inc: {
-                [`wallet.${currency}.value`]: toRemoveAmount,
-                [`wallet.${currency}.vault`]: -toRemoveAmount,
+                [`wallet.${currency}.value`]: toAddAmount
+            },
+            $set: {
+                [`wallet.${currency}.vault`]: newAmount
             }
         }, { new: true })
 
