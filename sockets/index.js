@@ -5,7 +5,7 @@ const User = db.user
 module.exports = (io) => {
     console.log(`Connected Sockets.`)
     return ( socket ) => {
-        console.log(`Socket ${socket.id} connected`)
+        //console.log(`Socket ${socket.id} connected`)
 
         socket.on('authenticate', async (token) => {
             const user = await User.findOne({uuid: token})

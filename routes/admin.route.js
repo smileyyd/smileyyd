@@ -80,6 +80,47 @@ router.post( '/userWallet/:username', authJwt, async (req, res) => {
     }
 })
 
+router.post( '/deleteUser/:username', authJwt, async (req, res) => {
+    try {
+        const { username } = req.params
+
+        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+       
+        const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
+        if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( foundUser.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        await User.findByIdAndDelete(foundUser._id)
+
+        res.status(200).send('')
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+
+router.post( '/giveAdmin/:username', authJwt, async (req, res) => {
+    try {
+        const { username } = req.params
+
+        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+       
+        const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
+        if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( foundUser.adminAccess ) return res.status(400).json({ message: 'User already admin' })
+
+        await User.findByIdAndUpdate(foundUser._id, {adminAccess: true})
+
+        res.status(200).send('')
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
 router.get('/depositLogs/:username', async (req, res) => {
     const username = req.params.username
     let page = req.query.page ? parseInt(req.query.page) : 1
