@@ -45,6 +45,8 @@ const createMinesBet = async (req, res) => {
         const formattedValue = parseFloat(amount).toFixed(foundCoin.dicimals)
         const formattedUmValue = parseFloat(user.wallet[currency].value).toFixed(foundCoin.dicimals)
 
+        if( Number(formattedValue) < 0 ) return res.status(400).json({ message: 'Insufficient amount' })
+
         if( Number(formattedUmValue) < Number(formattedValue) ) return res.status(400).json({ message: 'Insufficient amount' })
 
         const minesMap = createMinesweeperArray(minesCount) 

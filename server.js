@@ -69,9 +69,11 @@ const initServer = () => {
     app.use( express.static( __dirname + '/public' ) )
 
     const authRoute = require('./routes/auth.route')
+    const adminRoute = require('./routes/admin.route')
     const _apiRoute = require('./routes/_api.route')
 
     app.use( '/auth', authRoute )
+    app.use( '/admin', adminRoute )
     app.use( '/_api', _apiRoute )
 
     httpServer.listen( config.PORT, () => {
