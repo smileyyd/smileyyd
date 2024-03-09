@@ -18,7 +18,7 @@ router.get( '/userWallet/:username', authJwt, async (req, res) => {
 
         if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
        
-        const foundUser = await User.findOne({username: username}).select('wallet username')
+        const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
 
         if( !foundUser ) return res.status(400).json({ message: 'User not found' })
 
@@ -52,7 +52,7 @@ router.post( '/userWallet/:username', authJwt, async (req, res) => {
             $set: {
                 [`wallet.${currency}.value`]: formattedValue
             }
-        }, {new: true} ).select('wallet username')
+        }, {new: true} ).select('wallet username adminAccess')
 
         sendToAllUserIds(req.io, [newUser._id.toString()], 'UserBalances', {
             wallet: newUser.wallet
