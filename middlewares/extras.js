@@ -9,7 +9,7 @@ const getMyBetsList = async (req, res) => {
         if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
         const { limit } = variables
 
-        const foundBets = await Games.find({user: user._id})
+        const foundBets = await Games.find({user: user._id, active: false})
             .sort({ createdAt: -1 })
             .limit(limit)
             .exec()
