@@ -1,4 +1,5 @@
 const express = require('express')
+const fs = require('fs')
 const app = express()
 const http = require('http')
 const cors = require('cors')
@@ -11,7 +12,7 @@ const { startConversionRateInterval } = require('./middlewares/currencyConversio
 
 const httpServerOptions = {
     cert: fs.readFileSync('antzax_dev.crt'),
-    ca: fs.readFileSync('CA_bundle.crt'),
+    ca: fs.readFileSync('antzax_dev.ca-bundle'),
     key: fs.readFileSync('antzax.dev.key')
 }
 
