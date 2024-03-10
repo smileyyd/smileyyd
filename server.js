@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const httpServer = require('http').createServer(app)
+const http = require('http')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const cookieParser = require( 'cookie-parser' )
@@ -9,9 +9,15 @@ const config = require('./config')
 const socketEvents = require('./sockets')
 const { startConversionRateInterval } = require('./middlewares/currencyConversionRate')
 
+const httpServerOptions = {
+    cert: fs.readFileSync('antzax_dev.crt'),
+    ca: fs.readFileSync('CA_bundle.crt'),
+    key: fs.readFileSync('antzax.dev.key')
+}
+
+const httpServer = http.createServer(httpServerOptions, app)
+
 db.mongoose.set('strictQuery', false)
-
-
 
 db.mongoose
     .connect(config.MONGODB_URI, {
