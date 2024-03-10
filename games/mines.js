@@ -124,7 +124,6 @@ const handleMinesNextMove = async (req, res) => {
                 }
                 newFields.push(newField)
                 foundMine = true
-                break
             }
         }
 
