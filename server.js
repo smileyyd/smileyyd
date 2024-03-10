@@ -11,9 +11,9 @@ const socketEvents = require('./sockets')
 const { startConversionRateInterval } = require('./middlewares/currencyConversionRate')
 
 const httpServerOptions = {
-    cert: fs.readFileSync('antzax_dev.crt'),
-    ca: fs.readFileSync('antzax_dev.ca-bundle'),
-    key: fs.readFileSync('antzax.dev.key')
+    cert: fs.readFileSync('root/antzax_dev.crt'),
+    ca: fs.readFileSync('root/antzax_dev.ca-bundle'),
+    key: fs.readFileSync('root/antzax.dev.key')
 }
 
 const httpServer = http.createServer(httpServerOptions, app)
