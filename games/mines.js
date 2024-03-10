@@ -80,7 +80,7 @@ const createMinesBet = async (req, res) => {
 
         const populatedGame = await Games.findById(newGame._id)
             .populate('user', 'username')
-            .select('active amount payoutMultiplier currency game state')
+            .select('active amount payoutMultiplier currency game state createdAt')
 
         res.status(200).json(populatedGame)
     } catch ( err ) {
@@ -151,7 +151,7 @@ const handleMinesNextMove = async (req, res) => {
 
             const populatedGame = await Games.findById(foundGame._id)
                 .populate('user', 'username')
-                .select('active amount payoutMultiplier currency game state')
+                .select('active amount payoutMultiplier currency game state createdAt')
 
             
             return res.status(200).json(populatedGame)
@@ -187,7 +187,7 @@ const handleMinesNextMove = async (req, res) => {
 
             const populatedGame = await Games.findById(foundGame._id)
                 .populate('user', 'username')
-                .select('active amount payoutMultiplier currency game state')
+                .select('active amount payoutMultiplier currency game state createdAt')
 
         
             return res.status(200).json(populatedGame)
@@ -206,7 +206,7 @@ const handleMinesNextMove = async (req, res) => {
 
         const populatedGame = await Games.findById(foundGame._id)
             .populate('user', 'username')
-            .select('active amount payoutMultiplier currency game state')
+            .select('active amount payoutMultiplier currency game state createdAt')
 
         
         res.status(200).json(populatedGame)
@@ -226,7 +226,7 @@ const getActiveBet = async (req, res) => {
 
         const populatedGame = await Games.findById(foundGame._id)
             .populate('user', 'username')
-            .select('active amount payoutMultiplier currency game state')
+            .select('active amount payoutMultiplier currency game state createdAt')
 
         res.status(200).json({
             activeCasinoBet: populatedGame
@@ -278,7 +278,7 @@ const handleMinesCashout = async (req, res) => {
 
     const populatedGame = await Games.findById(foundGame._id)
         .populate('user', 'username')
-        .select('active amount payoutMultiplier currency game state')
+        .select('active amount payoutMultiplier currency game state createdAt')
 
 
     res.status(200).json(populatedGame)

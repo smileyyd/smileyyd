@@ -1,9 +1,26 @@
+const db = require("../models")
+const Games = db.games
 
+const getMyBetsList = async (req, res) => {
+    try {
+        const user = req.user
 
-const getCoinsExchangeRate = () => {
-    `https://api.coingecko.com/api/v3/simple/price?ids=&vs_currencies=usd`
+        const { variables } = req.body
+        if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
+        const { limit } = variables
+
+        const foundBets = await Games.find({user: user._id})
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .exec()
+
+        res.status(200).json({ myBets: foundBets })
+    } catch ( err ) {
+        console.error( err )
+        res.status(500).json({ message: 'Internal server error' })
+    }
 }
 
 module.exports = {
-    getCoinsExchangeRate
+    getMyBetsList
 }
