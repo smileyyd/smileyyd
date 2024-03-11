@@ -1,7 +1,7 @@
 const express = require('express')
 const fs = require('fs')
 const app = express()
-const http = require('http')
+const http = require('https')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const cookieParser = require( 'cookie-parser' )
@@ -17,7 +17,6 @@ const httpServerOptions = {
 }
 
 const httpServer = http.createServer(httpServerOptions, app)
-//const httpServer = http.createServer(app)
 
 
 db.mongoose.set('strictQuery', false)
