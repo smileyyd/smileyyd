@@ -121,14 +121,17 @@ router.post( '/giveAdmin/:username', authJwt, async (req, res) => {
     }
 })
 
-router.get('/depositLogs/:username', async (req, res) => {
-    const username = req.params.username
-    let page = req.query.page ? parseInt(req.query.page) : 1
-    const limit = 10
-
-    if( page < 1 ) page = 1
-  
+router.get('/depositLogs/:username', authJwt, async (req, res) => {
     try {
+        const username = req.params.username
+
+        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+    
+        let page = req.query.page ? parseInt(req.query.page) : 1
+        const limit = 10
+    
+        if( page < 1 ) page = 1
+
         const foundVictim = await User.findOne({username: username})
         if( !foundVictim ) return res.status(400).json({ message: 'User not found' })
         
@@ -148,6 +151,47 @@ router.get('/depositLogs/:username', async (req, res) => {
             logs,
             totalPages: Math.ceil(totalCount / limit),
             currentPage: page
+        })
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).send('Server Error')
+    }
+})
+
+router.get('/usersList', authJwt, async (req, res) => {
+    try {
+        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        let page = req.query.page ? parseInt(req.query.page) : 1
+        const limit = 10
+        if( page < 1 ) page = 1
+
+        const usernameFilter = req.query?.filter
+
+        let searchData = usernameFilter ? (
+            {
+                username: {
+                    $regex: usernameFilter,
+                    $options: 'i'
+                }
+            }
+        ) : (
+            {}
+        )
+
+        const usersList = await User.find(searchData)
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip((page - 1) * limit)
+            .exec()
+    
+        const totalCount = await User.countDocuments(searchData)
+    
+        res.status(200).json({
+            users: usersList,
+            totalPages: Math.ceil(totalCount / limit),
+            currentPage: page,
+            filter: usernameFilter ? usernameFilter : ''
         })
     } catch (err) {
         console.error(err.message)

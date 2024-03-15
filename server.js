@@ -1,7 +1,7 @@
 const express = require('express')
 const fs = require('fs')
 const app = express()
-const http = require('https')
+const http = require('http')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const cookieParser = require( 'cookie-parser' )
@@ -10,13 +10,15 @@ const config = require('./config')
 const socketEvents = require('./sockets')
 const { startConversionRateInterval } = require('./middlewares/currencyConversionRate')
 
-const httpServerOptions = {
+/*const httpServerOptions = {
     cert: fs.readFileSync('/root/antzax_dev.crt'),
     ca: fs.readFileSync('/root/antzax_dev.ca-bundle'),
     key: fs.readFileSync('/root/antzax.dev.key')
 }
 
-const httpServer = http.createServer(httpServerOptions, app)
+const httpServer = http.createServer(httpServerOptions, app)*/
+const httpServer = http.createServer(app)
+
 
 
 db.mongoose.set('strictQuery', false)
