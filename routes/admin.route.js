@@ -121,6 +121,26 @@ router.post( '/giveAdmin/:username', authJwt, async (req, res) => {
     }
 })
 
+router.post( '/removeAdmin/:username', authJwt, async (req, res) => {
+    try {
+        const { username } = req.params
+
+        if( !req.user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+       
+        const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
+        if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( !foundUser.adminAccess ) return res.status(400).json({ message: 'User is not an admin' })
+
+        await User.findByIdAndUpdate(foundUser._id, {adminAccess: false})
+
+        res.status(200).send('')
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
 router.get('/depositLogs/:username', authJwt, async (req, res) => {
     try {
         const username = req.params.username
