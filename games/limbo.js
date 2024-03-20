@@ -79,28 +79,38 @@ const createLimboBet = async (req, res) => {
 
         const gameResult = generateRandomMultiplier(multiplierTarget, newWinChance)
 
-        const newGame = await Games.create({
-            amount,
-            currency,
-            game: 'limbo',
-            user: user._id,
-            payoutMultiplier: multiplierTarget,
-            state: {
-                multiplierTarget: multiplierTarget,
-                result: gameResult
-            }
-        })
-
-        let newAmount 
+        
+        let resultPayoutMultiplier
+        let resultPayout
+        let newAmount
         if( gameResult > Number(multiplierTarget) ) {
+                resultPayoutMultiplier = multiplierTarget
+                resultPayout = Number(formattedValue) * gameResult
                 newAmount = parseFloat( Number(formattedUmValue) + (Number(formattedValue) * gameResult - Number(formattedValue)) ).toFixed(foundCoin.dicimals)
         } else {
+            resultPayoutMultiplier = 0
+            resultPayout = 0
             if( Number(formattedUmValue) < Number(formattedValue) ) {
                 newAmount = parseFloat( 0 ).toFixed(foundCoin.dicimals)
             } else {
                 newAmount = parseFloat( Number(formattedUmValue) - Number(formattedValue) ).toFixed(foundCoin.dicimals)
             }
         }
+
+        const newGame = await Games.create({
+            active: false,
+            amount,
+            currency,
+            game: 'limbo',
+            user: user._id,
+            payout: resultPayout,
+            payoutMultiplier: resultPayoutMultiplier,
+            state: {
+                multiplierTarget: multiplierTarget,
+                result: gameResult
+            }
+        })
+
 
         const newUser = await User.findOneAndUpdate({_id: user._id}, { $set: { [`wallet.${currency}.value`]: newAmount } }, { new: true })
 
@@ -110,7 +120,7 @@ const createLimboBet = async (req, res) => {
 
         const populatedGame = await Games.findById(newGame._id)
             .populate('user', 'username')
-            .select('amount payoutMultiplier currency game state createdAt')
+            .select('active amount payout payoutMultiplier currency game state createdAt')
 
         res.status(200).json(populatedGame)
     } catch ( err ) {

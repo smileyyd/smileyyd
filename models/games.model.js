@@ -13,6 +13,10 @@ const gamesSchema = new mongoose.Schema({
         type: String,
         default: '0.00000000'
     },
+    payout: {
+        type: Number,
+        default: 0
+    },
     payoutMultiplier: {
         type: Number,
         default: 0
