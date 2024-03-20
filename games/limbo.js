@@ -84,6 +84,7 @@ const createLimboBet = async (req, res) => {
             currency,
             game: 'limbo',
             user: user._id,
+            payoutMultiplier: multiplierTarget,
             state: {
                 multiplierTarget: multiplierTarget,
                 result: gameResult
