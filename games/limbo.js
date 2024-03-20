@@ -85,8 +85,8 @@ const createLimboBet = async (req, res) => {
         let newAmount
         if( gameResult > Number(multiplierTarget) ) {
                 resultPayoutMultiplier = multiplierTarget
-                resultPayout = Number(formattedValue) * gameResult
-                newAmount = parseFloat( Number(formattedUmValue) + (Number(formattedValue) * gameResult - Number(formattedValue)) ).toFixed(foundCoin.dicimals)
+                resultPayout = Number(formattedValue) * Number(multiplierTarget)
+                newAmount = parseFloat( Number(formattedUmValue) + (Number(formattedValue) * Number(multiplierTarget) - Number(formattedValue)) ).toFixed(foundCoin.dicimals)
         } else {
             resultPayoutMultiplier = 0
             resultPayout = 0
