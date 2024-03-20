@@ -7,7 +7,7 @@ const gamesSchema = new mongoose.Schema({
     },
     game: {
         type: String,
-        enum: ['mines']
+        enum: ['mines', 'limbo']
     },
     amount: {
         type: String,

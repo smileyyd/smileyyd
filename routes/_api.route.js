@@ -6,6 +6,7 @@ const { createMinesBet, handleMinesNextMove, handleMinesCashout, getActiveBet } 
 const { createVaultDeposit, createVaultWithdraw } = require('../middlewares/vault')
 const { getConversionRates } = require('../middlewares/currencyConversionRate')
 const { getMyBetsList, getNotificationsList, createWithdrawal } = require('../middlewares/extras')
+const { createLimboBet } = require('../games/limbo')
 
 
 
@@ -24,6 +25,9 @@ router.post( '/graphql', authJwt, async (req, res) => {
             return
         } else if ( query === 'minesActiveBet' ) {
             getActiveBet(req, res)
+            return
+        } else if ( query === 'limboBet' ) {
+            createLimboBet(req, res)
             return
         } else if ( query === 'createVaultDeposit' ) {
             createVaultDeposit(req, res)
