@@ -41,7 +41,7 @@ function generateRandomMultiplier(targetMultiplier, winningChance) {
         return result
     } else {
         const maxMultipliersArr = [2, 2.4, 3, 4, 5, 10, 15, 20, 30]
-        const maxMultipliersWeights = [280, 270, 265, 225, 220, 210, 80, 20, 2]
+        const maxMultipliersWeights = [270, 250, 235, 225, 220, 210, 80, 20, 2]
         
         const newRandomMaxMultiplier =  getRandomWithChances( maxMultipliersArr, maxMultipliersWeights, 1)[0]
 
