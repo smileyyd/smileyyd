@@ -6,8 +6,9 @@ const { sendToAllUserIds } = require("../sockets/helpers")
 const currenciesDb = require('../currenciesDb.json')
 
 
+
 function generateRandomNumber(min, max) {
-    return Math.random() * (max - min + 1) + min;
+    return Math.random() * (max - min) + min
 }
 
 function getRandomWithChances(arr, weights, numValues) {
@@ -36,12 +37,16 @@ function generateRandomMultiplier(targetMultiplier, winningChance) {
     const randomNumber = generateRandomNumber(0, 100)
     
     if( randomNumber > Number(winningChance) ) {
-        const result = generateRandomNumber(1.00, targetMultiplier)
+        const result = generateRandomNumber(1, Number(targetMultiplier))
         return result
     } else {
-        const maxMultipliersArr = [1.5, 2, 2.5, 3, 4, 5, 10, 15, 20, 30]
-        const maxMultipliersWeights = [263, 260, 250, 240, 230, 220, 210, 100, 20, 2]
+        const maxMultipliersArr = [2, 2.4, 3, 4, 5, 10, 15, 20, 30]
+        const maxMultipliersWeights = [270, 250, 235, 225, 220, 210, 80, 20, 2]
+        
         const newRandomMaxMultiplier =  getRandomWithChances( maxMultipliersArr, maxMultipliersWeights, 1)[0]
+
+        //const previewsMaxMultiplierIndex = maxMultipliersArr.indexOf(newRandomMaxMultiplier)
+        //const previewsMaxMultiplier = maxMultipliersArr[previewsMaxMultiplierIndex-1] || 1
 
         const result = generateRandomNumber(Number(targetMultiplier), Number(targetMultiplier) * newRandomMaxMultiplier)
         return result
