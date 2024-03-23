@@ -7,6 +7,7 @@ const { createVaultDeposit, createVaultWithdraw } = require('../middlewares/vaul
 const { getConversionRates } = require('../middlewares/currencyConversionRate')
 const { getMyBetsList, getNotificationsList, createWithdrawal } = require('../middlewares/extras')
 const { createLimboBet } = require('../games/limbo')
+const { createDiceRoll } = require('../games/dice')
 
 
 
@@ -28,6 +29,9 @@ router.post( '/graphql', authJwt, async (req, res) => {
             return
         } else if ( query === 'limboBet' ) {
             createLimboBet(req, res)
+            return
+        } else if( query === 'diceRoll' ) {
+            createDiceRoll(req, res)
             return
         } else if ( query === 'createVaultDeposit' ) {
             createVaultDeposit(req, res)
