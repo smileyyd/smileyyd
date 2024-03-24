@@ -21,22 +21,16 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    totalBets: {
-        type: Number,
-        default: 0
-    },
-    wins: {
-        type: Number,
-        default: 0
-    },
-    losses: {
-        type: Number,
-        default: 0
-    },
-    wagered: {
-        type: Number,
-        default: 0
-    },
+    statisticScoped: [
+        {
+            betAmount: Number,
+            bets: Number,
+            currency: String,
+            losses: Number,
+            ties: Number,
+            wins: Number,
+        }
+    ],
     createdAt: {
         type: Date,
         default: Date.now,

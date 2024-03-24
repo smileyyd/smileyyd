@@ -4,6 +4,7 @@ const Games = db.games
 
 const { sendToAllUserIds } = require("../sockets/helpers")
 const currenciesDb = require('../currenciesDb.json')
+const { updateUserStats } = require("../middlewares/extras")
 
 
 
@@ -84,15 +85,25 @@ const createLimboBet = async (req, res) => {
 
         const gameResult = generateRandomMultiplier(multiplierTarget, newWinChance)
 
+        let newStatisticScoped = {
+            wins: 0,
+            losses: 0,
+            betAmount: Number(formattedValue),
+            bets: 1
+        }
         
         let resultPayoutMultiplier
         let resultPayout
         let newAmount
         if( gameResult > Number(multiplierTarget) ) {
-                resultPayoutMultiplier = multiplierTarget
-                resultPayout = Number(formattedValue) * Number(multiplierTarget)
-                newAmount = parseFloat( Number(formattedUmValue) + (Number(formattedValue) * Number(multiplierTarget) - Number(formattedValue)) ).toFixed(foundCoin.dicimals)
+            newStatisticScoped.wins++
+
+            resultPayoutMultiplier = multiplierTarget
+            resultPayout = Number(formattedValue) * Number(multiplierTarget)
+            newAmount = parseFloat( Number(formattedUmValue) + (Number(formattedValue) * Number(multiplierTarget) - Number(formattedValue)) ).toFixed(foundCoin.dicimals)
         } else {
+            newStatisticScoped.losses++
+
             resultPayoutMultiplier = 0
             resultPayout = 0
             if( Number(formattedUmValue) < Number(formattedValue) ) {
@@ -117,7 +128,9 @@ const createLimboBet = async (req, res) => {
         })
 
 
-        const newUser = await User.findOneAndUpdate({_id: user._id}, { $set: { [`wallet.${currency}.value`]: newAmount } }, { new: true })
+        //const newUser = await User.findOneAndUpdate({_id: user._id}, { $set: { [`wallet.${currency}.value`]: newAmount } }, { new: true })
+
+        const newUser = await updateUserStats(user, newStatisticScoped, newAmount, currency)
 
         /*sendToAllUserIds(req.io, [newUser._id.toString()], 'UserBalances', {
             wallet: newUser.wallet

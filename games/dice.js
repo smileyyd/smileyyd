@@ -4,6 +4,7 @@ const Games = db.games
 
 const { sendToAllUserIds } = require("../sockets/helpers")
 const currenciesDb = require('../currenciesDb.json')
+const { updateUserStats } = require("../middlewares/extras")
 
 
 
@@ -36,8 +37,6 @@ function getRandomWithChances(arr, weights, numValues) {
 function generateRandomMultiplier(target, winningChance, condition) {
     const randomNumber = generateRandomNumber(0, 100)
 
-    console.log('randomNumber:', randomNumber)
-    
     if( randomNumber < Number(winningChance) ) {
         let result
         if( condition === "above" ) {
@@ -100,15 +99,26 @@ const createDiceRoll = async (req, res) => {
 
         const gameResult = generateRandomMultiplier(target, newWinChance, condition)
 
+        let newStatisticScoped = {
+            wins: 0,
+            losses: 0,
+            betAmount: Number(formattedValue),
+            bets: 1
+        }
+        
         let resultPayoutMultiplier
         let resultPayout
         let newAmount
         if( gameResult > Number(target) ) {
             if( condition === "above" ) {
+                newStatisticScoped.wins++
+
                 resultPayoutMultiplier = Number(multiplier)
                 resultPayout = Number(formattedValue) * Number(multiplier)
                 newAmount = parseFloat( Number(formattedUmValue) + (Number(formattedValue) * Number(multiplier) - Number(formattedValue)) ).toFixed(foundCoin.dicimals)
             } else {
+                newStatisticScoped.losses++
+
                 resultPayoutMultiplier = 0
                 resultPayout = 0
                 if( Number(formattedUmValue) < Number(formattedValue) ) {
@@ -119,6 +129,8 @@ const createDiceRoll = async (req, res) => {
             }
         } else {
             if( condition === "above" ) {
+                newStatisticScoped.losses++
+
                 resultPayoutMultiplier = 0
                 resultPayout = 0
                 if( Number(formattedUmValue) < Number(formattedValue) ) {
@@ -127,6 +139,8 @@ const createDiceRoll = async (req, res) => {
                     newAmount = parseFloat( Number(formattedUmValue) - Number(formattedValue) ).toFixed(foundCoin.dicimals)
                 }
             } else {
+                newStatisticScoped.wins++
+
                 resultPayoutMultiplier = Number(multiplier)
                 resultPayout = Number(formattedValue) * Number(multiplier)
                 newAmount = parseFloat( Number(formattedUmValue) + (Number(formattedValue) * Number(multiplier) - Number(formattedValue)) ).toFixed(foundCoin.dicimals)
@@ -149,7 +163,9 @@ const createDiceRoll = async (req, res) => {
         })
 
 
-        const newUser = await User.findOneAndUpdate({_id: user._id}, { $set: { [`wallet.${currency}.value`]: newAmount } }, { new: true })
+        const newUser = await updateUserStats(user, newStatisticScoped, newAmount, currency)
+
+        
 
         const populatedGame = await Games.findById(newGame._id)
             .populate('user', 'username')

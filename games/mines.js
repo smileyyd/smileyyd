@@ -5,6 +5,7 @@ const Games = db.games
 const minesWinRates = require('../minesWinRate.json')
 const currenciesDb = require('../currenciesDb.json')
 const { sendToAllUserIds } = require("../sockets/helpers")
+const { updateUserStats } = require("../middlewares/extras")
 
 
 function createMinesweeperArray(minesCount) {
@@ -91,10 +92,13 @@ const createMinesBet = async (req, res) => {
 
 const handleMinesNextMove = async (req, res) => {
     try {
+
+        const user = req.user
+
         const { variables } = req.body
         if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
 
-        const foundGame = await Games.findOne({game: 'mines', user: req.user._id, active: true})
+        const foundGame = await Games.findOne({game: 'mines', user: user._id, active: true})
         if(!foundGame) return res.status(400).json({ message: 'Game not found' })
 
         const { fields } = variables
@@ -132,7 +136,16 @@ const handleMinesNextMove = async (req, res) => {
             if( p === 1 ) minesPoses.push(i)
         } )
 
+
+
         if( foundMine ) {
+
+            let newStatisticScoped = {
+                wins: 0,
+                losses: 1,
+                betAmount: Number(foundGame.amount),
+                bets: 1
+            }
 
             await Games.findOneAndUpdate( { _id: foundGame._id }, {
                     $push: {
@@ -149,6 +162,8 @@ const handleMinesNextMove = async (req, res) => {
                 }
             )
 
+            const newUser = await updateUserStats(user, newStatisticScoped, null, foundGame.currency)
+
             const populatedGame = await Games.findById(foundGame._id)
                 .populate('user', 'username')
                 .select('active amount payout payoutMultiplier currency game state createdAt')
@@ -159,12 +174,25 @@ const handleMinesNextMove = async (req, res) => {
 
         const playedRounds = [...foundGame.state.rounds, ...newFields].length
         if( 25 - foundGame.state.minesCount === playedRounds ) {
-            const fullPayout = minesWinRates[foundGame.state.minesCount][playedRounds]
 
+
+            
+            const fullPayout = minesWinRates[foundGame.state.minesCount][playedRounds]
             const foundCoin = currenciesDb.find( c => c.symbol === foundGame.currency )
             const wonAmount = parseFloat(foundGame.amount * fullPayout).toFixed(foundCoin.dicimals)
+            const formattedUmValue = parseFloat(user.wallet[foundGame.currency].value).toFixed(foundCoin.dicimals)
+            const newAmount = parseFloat( Number(formattedUmValue) + Number(wonAmount) ).toFixed(foundCoin.dicimals)
 
-            const newUser = await User.findOneAndUpdate({_id: req.user._id}, { $inc: { [`wallet.${foundGame.currency}.value`]: Number(wonAmount) } }, { new: true })
+            let newStatisticScoped = {
+                wins: 1,
+                losses: 0,
+                betAmount: Number(foundGame.amount),
+                bets: 1
+            }
+        
+            const newUser = await updateUserStats(user, newStatisticScoped, newAmount, foundGame.currency)
+
+            //const newUser = await User.findOneAndUpdate({_id: req.user._id}, { $inc: { [`wallet.${foundGame.currency}.value`]: Number(wonAmount) } }, { new: true })
 
             sendToAllUserIds(req.io, [newUser._id.toString()], 'UserBalances', {
                 wallet: newUser.wallet
@@ -239,10 +267,13 @@ const getActiveBet = async (req, res) => {
 }
 
 const handleMinesCashout = async (req, res) => {
+
+    const user = req.user
+
     const { variables } = req.body
     if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
 
-    const foundGame = await Games.findOne({game: 'mines', user: req.user._id, active: true})
+    const foundGame = await Games.findOne({game: 'mines', user: user._id, active: true})
     if(!foundGame) return res.status(400).json({ message: 'Game not found' })
 
     const { identifier } = variables
@@ -261,7 +292,17 @@ const handleMinesCashout = async (req, res) => {
     const fullPayout = minesWinRates[foundGame.state.minesCount][playedRounds]
     const foundCoin = currenciesDb.find( c => c.symbol === foundGame.currency )
     const wonAmount = parseFloat(foundGame.amount * fullPayout).toFixed(foundCoin.dicimals)
-    const newUser = await User.findOneAndUpdate({_id: req.user._id}, { $inc: { [`wallet.${foundGame.currency}.value`]: Number(wonAmount) } }, { new: true })
+    const formattedUmValue = parseFloat(user.wallet[foundGame.currency].value).toFixed(foundCoin.dicimals)
+    const newAmount = parseFloat( Number(formattedUmValue) + Number(wonAmount) ).toFixed(foundCoin.dicimals)
+
+    let newStatisticScoped = {
+        wins: 1,
+        losses: 0,
+        betAmount: Number(foundGame.amount),
+        bets: 1
+    }
+
+    const newUser = await updateUserStats(user, newStatisticScoped, newAmount, foundGame.currency)
 
     sendToAllUserIds(req.io, [newUser._id.toString()], 'UserBalances', {
         wallet: newUser.wallet

@@ -100,8 +100,50 @@ const getNotificationsList = async (req, res) => {
     }
 }
 
+const updateUserStats = async (user, newStatisticScoped, newAmount, currency) => {
+    if( newAmount !== null ) {
+        user.wallet[currency].value = newAmount
+    }
+
+    const statIndex = user.statisticScoped.findIndex(element => element.currency === currency)
+
+    if (statIndex !== -1) {
+        // If the element exists, update its values
+        user.statisticScoped[statIndex].wins += newStatisticScoped.wins
+        user.statisticScoped[statIndex].losses += newStatisticScoped.losses
+        user.statisticScoped[statIndex].betAmount += newStatisticScoped.betAmount
+        user.statisticScoped[statIndex].bets += newStatisticScoped.bets
+    } else {
+        // If the element does not exist, push a new element to the array
+        user.statisticScoped.push({
+            currency: currency,
+            wins: newStatisticScoped.wins,
+            losses: newStatisticScoped.losses,
+            betAmount: newStatisticScoped.betAmount,
+            bets: newStatisticScoped.bets
+        })
+    }
+
+    return await user.save()
+}
+
+const getUserDetails = async (req, res) => {
+    const user = req.user
+
+    const { variables } = req.body
+    if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
+    const { name } = variables
+
+    const targetUser = await User.findOne({username: name}).select('username createdAt statisticScoped')
+    if(!targetUser) return res.status(400).json({ message: 'Invalid request data' })
+
+    res.status(200).json({ user: targetUser })
+}
+
 module.exports = {
     getMyBetsList,
     getNotificationsList,
-    createWithdrawal
+    createWithdrawal,
+    updateUserStats,
+    getUserDetails
 }
