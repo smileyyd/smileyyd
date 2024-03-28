@@ -7,6 +7,7 @@ const config = require('../config')
 const db = require("../models")
 const User = db.user
 const Deposits = db.deposits
+const Rigs = db.rigs
 
 const authJwt = require('../middlewares/authJwt')
 const { sendToAllUserIds } = require("../sockets/helpers")
@@ -36,7 +37,7 @@ router.post( '/userWallet/:username', authJwt, async (req, res) => {
         const { currency, amount } = req.body
         const { username } = req.params
 
-        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
 
         const foundCoin = currenciesDb.find( c => c.symbol === currency )
         if( !foundCoin ) return res.status(400).json({ message: 'Currency not supported' })
@@ -74,6 +75,64 @@ router.post( '/userWallet/:username', authJwt, async (req, res) => {
         }
 
         res.status(200).json({ user: newUser.toObject() })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+router.patch( '/rigs', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+
+        if( !user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        const { coinflip } = req.body
+
+        const updatedData = {}
+        if( !isNaN( coinflip ) ) {
+            let newCoinFlip = Number(coinflip)
+
+            if( coinflip >= 100 ) newCoinFlip = 100
+            if( coinflip <= 0 ) newCoinFlip = 0
+
+            updatedData.coinFlipChance = newCoinFlip
+        }
+
+        if( !Object.keys(updatedData).length ) return res.status(400).json({ message: 'Invalid update Data' })
+
+        let newRigsObject
+        const foundRigsObject = await Rigs.findOne({})
+        if( foundRigsObject ) {
+            Object.assign(foundRigsObject, updatedData)
+            newRigsObject = await foundRigsObject.save()
+        } else {
+            newRigsObject = await Rigs.create(updatedData)
+        }
+
+        req.io.emit('rigsUpdate', { rigs: newRigsObject })
+        res.status(200).json({ rigs: newRigsObject })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+router.get( '/rigs', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+
+        //if( !user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        let newRigsObject
+        const foundRigsObject = await Rigs.findOne({})
+        if( foundRigsObject ) {
+            newRigsObject = foundRigsObject
+        } else {
+            newRigsObject = await Rigs.create()
+        }
+
+        res.status(200).json({ rigs: newRigsObject })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Internal server error' })
