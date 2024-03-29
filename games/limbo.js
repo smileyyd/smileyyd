@@ -77,7 +77,6 @@ const createLimboBet = async (req, res) => {
         const formattedUmValue = parseFloat(user.wallet[currency].value).toFixed(foundCoin.dicimals)
 
         if( Number(formattedValue) < 0 ) return res.status(400).json({ message: 'Insufficient amount' })
-
         if( Number(formattedUmValue) < Number(formattedValue) ) return res.status(400).json({ message: 'Insufficient amount' })
 
         const calcWinChance = 99 / Number(multiplierTarget)

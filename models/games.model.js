@@ -6,8 +6,7 @@ const gamesSchema = new mongoose.Schema({
         default: true
     },
     game: {
-        type: String,
-        enum: ['mines', 'limbo', 'dice']
+        type: String
     },
     amount: {
         type: String,
