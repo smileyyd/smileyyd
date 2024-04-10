@@ -143,6 +143,7 @@ const handleMinesNextMove = async (req, res) => {
             let newStatisticScoped = {
                 wins: 0,
                 losses: 1,
+                ties: 0,
                 betAmount: Number(foundGame.amount),
                 bets: 1
             }
@@ -186,6 +187,7 @@ const handleMinesNextMove = async (req, res) => {
             let newStatisticScoped = {
                 wins: 1,
                 losses: 0,
+                ties: 0,
                 betAmount: Number(foundGame.amount),
                 bets: 1
             }
@@ -246,7 +248,7 @@ const handleMinesNextMove = async (req, res) => {
     }
 }
 
-const getActiveBet = async (req, res) => {
+const getActiveMinesBet = async (req, res) => {
     try {
         const foundGame = await Games.findOne({game: 'mines', user: req.user._id, active: true})
         if(!foundGame) return res.status(200).json({
@@ -298,6 +300,7 @@ const handleMinesCashout = async (req, res) => {
     let newStatisticScoped = {
         wins: 1,
         losses: 0,
+        ties: 0,
         betAmount: Number(foundGame.amount),
         bets: 1
     }
@@ -333,5 +336,5 @@ module.exports = {
     createMinesBet,
     handleMinesNextMove,
     handleMinesCashout,
-    getActiveBet
+    getActiveMinesBet
 }

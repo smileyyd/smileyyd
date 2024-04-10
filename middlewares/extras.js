@@ -109,6 +109,13 @@ const updateUserStats = async (user, newStatisticScoped, newAmount, currency) =>
 
     if (statIndex !== -1) {
         // If the element exists, update its values
+        
+        if( user.statisticScoped[statIndex].ties === undefined) {
+            user.statisticScoped[statIndex].ties = newStatisticScoped.ties
+        } else {
+            user.statisticScoped[statIndex].ties += newStatisticScoped.ties
+        }
+        
         user.statisticScoped[statIndex].wins += newStatisticScoped.wins
         user.statisticScoped[statIndex].losses += newStatisticScoped.losses
         user.statisticScoped[statIndex].betAmount += newStatisticScoped.betAmount
@@ -119,6 +126,7 @@ const updateUserStats = async (user, newStatisticScoped, newAmount, currency) =>
             currency: currency,
             wins: newStatisticScoped.wins,
             losses: newStatisticScoped.losses,
+            ties: newStatisticScoped.ties,
             betAmount: newStatisticScoped.betAmount,
             bets: newStatisticScoped.bets
         })

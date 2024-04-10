@@ -87,6 +87,7 @@ const createLimboBet = async (req, res) => {
         let newStatisticScoped = {
             wins: 0,
             losses: 0,
+            ties: 0,
             betAmount: Number(formattedValue),
             bets: 1
         }

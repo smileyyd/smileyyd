@@ -15,6 +15,9 @@ const fetchCurrencyConversionRates = async () => {
             } )
             currencyConversionRates = coinsWithSymbols
         } )
+        .catch( err => {
+            console.log("failed to fetch currencies:", err.message)
+        } )
 }
 
 const startConversionRateInterval = () => {
