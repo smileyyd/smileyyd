@@ -60,7 +60,7 @@ function playDealerTurns(cards, playerValue) {
     let newActions = []
     let pushedAtLeastOnce = false // Flag to track if at least one card has been pushed
 
-    while (!pushedAtLeastOnce || (resultValue < 17 && resultValue <= playerValue)) {
+    while (!pushedAtLeastOnce || resultValue < 17) {
         const newCard = {
             suit: getRandomItew(cardSuits),
             rank: getRandomItew(cardRanks)

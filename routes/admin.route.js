@@ -15,9 +15,10 @@ const { sendToAllUserIds } = require("../sockets/helpers")
 
 router.get( '/userWallet/:username', authJwt, async (req, res) => {
     try {
+        const user = req.user
         const { username } = req.params
 
-        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
        
         const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
 
@@ -37,7 +38,7 @@ router.post( '/userWallet/:username', authJwt, async (req, res) => {
         const { currency, amount } = req.body
         const { username } = req.params
 
-        if( !user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
 
         const foundCoin = currenciesDb.find( c => c.symbol === currency )
         if( !foundCoin ) return res.status(400).json({ message: 'Currency not supported' })
@@ -85,7 +86,7 @@ router.patch( '/rigs', authJwt, async (req, res) => {
     try {
         const user = req.user
 
-        if( !user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
 
         const { coinflip } = req.body
 
@@ -141,9 +142,10 @@ router.get( '/rigs', authJwt, async (req, res) => {
 
 router.post( '/deleteUser/:username', authJwt, async (req, res) => {
     try {
+        const user = req.user
         const { username } = req.params
 
-        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
        
         const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
         if( !foundUser ) return res.status(400).json({ message: 'User not found' })
@@ -162,9 +164,10 @@ router.post( '/deleteUser/:username', authJwt, async (req, res) => {
 
 router.post( '/giveAdmin/:username', authJwt, async (req, res) => {
     try {
+        const user = req.user
         const { username } = req.params
 
-        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
        
         const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
         if( !foundUser ) return res.status(400).json({ message: 'User not found' })
@@ -182,9 +185,10 @@ router.post( '/giveAdmin/:username', authJwt, async (req, res) => {
 
 router.post( '/removeAdmin/:username', authJwt, async (req, res) => {
     try {
+        const user = req.user
         const { username } = req.params
 
-        if( !req.user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
        
         const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
         if( !foundUser ) return res.status(400).json({ message: 'User not found' })
@@ -202,9 +206,10 @@ router.post( '/removeAdmin/:username', authJwt, async (req, res) => {
 
 router.get('/depositLogs/:username', authJwt, async (req, res) => {
     try {
+        const user = req.user
         const username = req.params.username
 
-        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
     
         let page = req.query.page ? parseInt(req.query.page) : 1
         const limit = 10
@@ -239,7 +244,9 @@ router.get('/depositLogs/:username', authJwt, async (req, res) => {
 
 router.get('/usersList', authJwt, async (req, res) => {
     try {
-        if( !req.user.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        const user = req.user
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
 
         let page = req.query.page ? parseInt(req.query.page) : 1
         const limit = 10
@@ -259,6 +266,7 @@ router.get('/usersList', authJwt, async (req, res) => {
         )
 
         const usersList = await User.find(searchData)
+            .select('adminAccess superAdminAccess createdAt username')
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip((page - 1) * limit)
@@ -271,6 +279,27 @@ router.get('/usersList', authJwt, async (req, res) => {
             totalPages: Math.ceil(totalCount / limit),
             currentPage: page,
             filter: usernameFilter ? usernameFilter : ''
+        })
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).send('Server Error')
+    }
+})
+
+router.get('/useruuid/:username', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const username = req.params.username
+
+        if( !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        const foundUser = await User.findOne({username: username})
+            .select('uuid')
+    
+        if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        res.status(200).json({
+            uuid: foundUser.uuid,
         })
     } catch (err) {
         console.error(err.message)
