@@ -1,7 +1,7 @@
 const express = require('express')
 const fs = require('fs')
 const app = express()
-const http = require('https')
+const http = require('http')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const cookieParser = require( 'cookie-parser' )
@@ -10,14 +10,14 @@ const config = require('./config')
 const socketEvents = require('./sockets')
 const { startConversionRateInterval } = require('./middlewares/currencyConversionRate')
 
-const httpServerOptions = {
+/*const httpServerOptions = {
     cert: fs.readFileSync('/root/stakeg_com.crt'),
     ca: fs.readFileSync('/root/stakeg_com.ca-bundle'),
     key: fs.readFileSync('/root/stakeg.key')
 }
 
-const httpServer = http.createServer(httpServerOptions, app)
-//const httpServer = http.createServer(app)
+const httpServer = http.createServer(httpServerOptions, app)*/
+const httpServer = http.createServer(app)
 
 
 
