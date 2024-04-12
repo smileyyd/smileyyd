@@ -5,7 +5,7 @@ const authJwt = require('../middlewares/authJwt')
 const { createMinesBet, handleMinesNextMove, handleMinesCashout, getActiveMinesBet } = require('../games/mines')
 const { createVaultDeposit, createVaultWithdraw } = require('../middlewares/vault')
 const { getConversionRates } = require('../middlewares/currencyConversionRate')
-const { getMyBetsList, getNotificationsList, createWithdrawal, getUserDetails } = require('../middlewares/extras')
+const { getMyBetsList, getNotificationsList, createWithdrawal, getUserDetails, getDepositList, getWithdrawalList } = require('../middlewares/extras')
 const { createLimboBet } = require('../games/limbo')
 const { createDiceRoll } = require('../games/dice')
 const { createKenoBet } = require('../games/keno')
@@ -67,6 +67,12 @@ router.post( '/graphql', authJwt, async (req, res) => {
             return
         } else if ( query === 'userDetails' ) {
             getUserDetails(req, res)
+            return
+        } else if ( query === 'depositList' ) {
+            getDepositList(req, res)
+            return
+        } else if ( query === 'withdrawalList' ) {
+            getWithdrawalList(req, res)
             return
         }
 

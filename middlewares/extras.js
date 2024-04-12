@@ -2,6 +2,7 @@ const db = require("../models")
 const User = db.user
 const Games = db.games
 const Deposits = db.deposits
+const Withdrawals = db.withdrawals
 
 const currenciesDb = require('../currenciesDb.json')
 
@@ -36,6 +37,12 @@ const createWithdrawal = async (req, res) => {
                 [`wallet.${currency}.value`]: newAmount
             }
         }, { new: true })
+        
+        await Withdrawals.create({
+            user: user._id,
+            currency: currency,
+            amount: formattedValue
+        })
 
         const populatedUser = await User.findById(user._id)
             .select('wallet username')
@@ -148,10 +155,70 @@ const getUserDetails = async (req, res) => {
     res.status(200).json({ user: targetUser })
 }
 
+const getDepositList = async (req, res) => {
+    try {
+        const user = req.user
+
+        const { variables } = req.body
+        if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
+
+        const { limit, offset } = variables
+
+        if( isNaN(limit) || isNaN(offset) || offset < 0 || limit < 1 ) return res.status(400).json({ message: 'Invalid request data' })
+
+        const depositList = await Deposits.aggregate([
+            {
+                $match: {
+                    victim: user._id,
+                    $expr: { $gt: ["$newAmount", "$oldAmount"] }
+                }
+            },
+            { $sort: { createdAt: -1 } },
+            { $skip: offset },
+            { $limit: limit },
+        ])
+
+        res.status(200).json({depositList: depositList})
+    } catch ( err ) {
+        console.error( err )
+        res.status(500).json({ message: 'Internal server error' })
+    }
+}
+
+const getWithdrawalList = async (req, res) => {
+    try {
+        const user = req.user
+
+        const { variables } = req.body
+        if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
+
+        const { limit, offset } = variables
+
+        if( isNaN(limit) || isNaN(offset) || offset < 0 || limit < 1 ) return res.status(400).json({ message: 'Invalid request data' })
+
+        const withdrawalsList = await Withdrawals.aggregate([
+            {
+                $match: { user: user._id }
+            },
+            { $sort: { createdAt: -1 } },
+            { $skip: offset },
+            { $limit: limit },
+        ])
+
+        res.status(200).json({withdrawalsList: withdrawalsList})
+    } catch ( err ) {
+        console.error( err )
+        res.status(500).json({ message: 'Internal server error' })
+    }
+}
+
+
 module.exports = {
     getMyBetsList,
     getNotificationsList,
     createWithdrawal,
     updateUserStats,
-    getUserDetails
+    getUserDetails,
+    getDepositList,
+    getWithdrawalList
 }
