@@ -150,7 +150,7 @@ router.post( '/deleteUser/:username', authJwt, async (req, res) => {
         const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
         if( !foundUser ) return res.status(400).json({ message: 'User not found' })
 
-        if( foundUser.adminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( foundUser.adminAccess || foundUser.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
 
         await User.findByIdAndDelete(foundUser._id)
 
