@@ -226,7 +226,7 @@ const createBlackjackBet = async (req, res) => {
             currency,
             game: 'blackjack',
             user: user._id,
-            payout: 0,
+            payout: Number(amount) * resultMultiplier,
             payoutMultiplier: resultMultiplier,
             state: {
                 dealer: [
@@ -371,6 +371,7 @@ const _INSURANCE_Action = async(req, res, foundGame) => {
                 $set: {
                     active: false,
                     payoutMultiplier: resultMultiplier,
+                    payout: Number(foundGame.amount) * resultMultiplier,
                     [`state.player.0.actions`]: addPlayerActions,
                     [`state.dealer.0.value`]: newDealerValue,
                     [`state.dealer.0.cards`]: newDealerHandCards
@@ -451,6 +452,7 @@ const _NO_INSURANCE_Action = async(req, res, foundGame) => {
                 $set: {
                     active: false,
                     payoutMultiplier: resultMultiplier,
+                    payout: 0,
                     [`state.player.0.actions`]: addPlayerActions,
                     [`state.dealer.0.value`]: newDealerValue,
                     [`state.dealer.0.cards`]: newDealerHandCards
@@ -568,6 +570,7 @@ const _SPLIT_Action = async(req, res, foundGame) => {
                 $set: {
                     active: false,
                     payoutMultiplier: resultMultiplier,
+                    payout: Number(foundGame.amount) * resultMultiplier,
                     [`state.dealer.0.value`]: newDealerResults.value,
                     [`state.dealer.0.cards`]: newDealerResults.cards,
                     [`state.dealer.0.actions`]: addDealerActions,
@@ -686,6 +689,7 @@ const _DOUBLE_Action = async(req, res, foundGame) => {
                             $set: {
                                 active: false,
                                 payoutMultiplier: resultMultiplier,
+                                payout: 0,
                                 [`state.player.${handIndex}.value`]: playerValue,
                                 [`state.player.${handIndex}.cards`]: newPlayerCards,
                                 [`state.player.${handIndex}.actions`]: addPlayerActions
@@ -722,6 +726,7 @@ const _DOUBLE_Action = async(req, res, foundGame) => {
                             $set: {
                                 active: false,
                                 payoutMultiplier: resultMultiplier,
+                                payout: Number(foundGame.amount) * resultMultiplier,
                                 [`state.player.${handIndex}.value`]: playerValue,
                                 [`state.player.${handIndex}.cards`]: newPlayerCards,
                                 [`state.player.${handIndex}.actions`]: addPlayerActions,
@@ -824,6 +829,7 @@ const _DOUBLE_Action = async(req, res, foundGame) => {
                             $set: {
                                 active: false,
                                 payoutMultiplier: resultMultiplier,
+                                payout: Number(foundGame.amount) * resultMultiplier,
                                 [`state.player.${handIndex}.value`]: playerValue,
                                 [`state.player.${handIndex}.cards`]: newPlayerCards,
                                 [`state.player.${handIndex}.actions`]: addPlayerActions,
@@ -854,6 +860,7 @@ const _DOUBLE_Action = async(req, res, foundGame) => {
                     $set: {
                         active: false,
                         payoutMultiplier: resultMultiplier,
+                        payout: 0,
                         [`state.player.0.value`]: playerValue,
                         [`state.player.0.cards`]: newPlayerCards,
                         [`state.player.0.actions`]: addPlayerActions
@@ -883,6 +890,7 @@ const _DOUBLE_Action = async(req, res, foundGame) => {
                     $set: {
                         active: false,
                         payoutMultiplier: resultMultiplier,
+                        payout: Number(foundGame.amount) * resultMultiplier,
                         [`state.player.0.cards`]: newPlayerCards,
                         [`state.player.0.value`]: playerValue,
                         [`state.player.0.actions`]: addPlayerActions,
@@ -1053,6 +1061,7 @@ const _STAND_Action = async(req, res, foundGame) => {
                     $set: {
                         active: false,
                         payoutMultiplier: resultMultiplier,
+                        payout: Number(foundGame.amount) * resultMultiplier,
                         [`state.player.${handIndex}.actions`]: addPlayerActions,
                         [`state.dealer.0.cards`]: newDealerResults.cards,
                         [`state.dealer.0.value`]: newDealerResults.value,
@@ -1090,6 +1099,7 @@ const _STAND_Action = async(req, res, foundGame) => {
                 $set: {
                     active: false,
                     payoutMultiplier: resultMultiplier,
+                    payout: Number(foundGame.amount) * resultMultiplier,
                     [`state.player.0.actions`]: addPlayerActions,
                     [`state.dealer.0.cards`]: newDealerResults.cards,
                     [`state.dealer.0.value`]: newDealerResults.value,
@@ -1179,6 +1189,7 @@ const _HIT_Action = async(req, res, foundGame) => {
                         $set: {
                             active: false,
                             payoutMultiplier: resultMultiplier,
+                            payout: 0,
                             [`state.player.${handIndex}.value`]: playerValue,
                             [`state.player.${handIndex}.cards`]: newPlayerCards,
                             [`state.player.${handIndex}.actions`]: newPlayerActions
@@ -1215,6 +1226,7 @@ const _HIT_Action = async(req, res, foundGame) => {
                         $set: {
                             active: false,
                             payoutMultiplier: resultMultiplier,
+                            payout: Number(foundGame.amount) * resultMultiplier,
                             [`state.player.${handIndex}.value`]: playerValue,
                             [`state.player.${handIndex}.cards`]: newPlayerCards,
                             [`state.player.${handIndex}.actions`]: newPlayerActions,
@@ -1239,6 +1251,7 @@ const _HIT_Action = async(req, res, foundGame) => {
                     $set: {
                         active: false,
                         payoutMultiplier: resultMultiplier,
+                        payout: 0,
                         [`state.player.${handIndex}.value`]: playerValue,
                         [`state.player.${handIndex}.cards`]: newPlayerCards,
                         [`state.player.${handIndex}.actions`]: newPlayerActions
@@ -1300,6 +1313,7 @@ const _HIT_Action = async(req, res, foundGame) => {
                         $set: {
                             active: false,
                             payoutMultiplier: resultMultiplier,
+                            payout: Number(foundGame.amount) * resultMultiplier,
                             [`state.player.${handIndex}.value`]: playerValue,
                             [`state.player.${handIndex}.cards`]: newPlayerCards,
                             [`state.player.${handIndex}.actions`]: addPlayerActions,
@@ -1337,6 +1351,7 @@ const _HIT_Action = async(req, res, foundGame) => {
                     $set: {
                         active: false,
                         payoutMultiplier: resultMultiplier,
+                        payout: Number(foundGame.amount) * resultMultiplier,
                         [`state.player.${handIndex}.value`]: playerValue,
                         [`state.player.${handIndex}.cards`]: newPlayerCards,
                         [`state.player.${handIndex}.actions`]: addPlayerActions,
