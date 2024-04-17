@@ -10,6 +10,7 @@ const { createLimboBet } = require('../games/limbo')
 const { createDiceRoll } = require('../games/dice')
 const { createKenoBet } = require('../games/keno')
 const { createBlackjackBet, handleBlackjackNext, getActiveBlackjackBet } = require('../games/blackjack')
+const { createHiloBet, handleHiloNext, getActiveHiloBet, handleHiloCashout } = require('../games/hilo')
 
 
 
@@ -46,6 +47,18 @@ router.post( '/graphql', authJwt, async (req, res) => {
             return
         } else if ( query === 'blackjackActiveBet' ) {
             getActiveBlackjackBet(req, res)
+            return
+        } else if ( query === 'hiloBet' ) {
+            createHiloBet(req, res)
+            return
+        } else if ( query === 'hiloNext' ) {
+            handleHiloNext(req, res)
+            return
+        } else if ( query === 'hiloCashout' ) {
+            handleHiloCashout(req, res)
+            return
+        } else if ( query === 'hiloActiveBet' ) {
+            getActiveHiloBet(req, res)
             return
         } else if ( query === 'createVaultDeposit' ) {
             createVaultDeposit(req, res)
