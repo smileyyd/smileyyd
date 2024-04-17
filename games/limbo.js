@@ -41,7 +41,12 @@ function generateRandomMultiplier(targetMultiplier, winningChance) {
         let result
         const loseRandomNumber = generateRandomNumber(0, 100)
         if( loseRandomNumber < 80 ) {
-            result = generateRandomNumber(1, 4 )
+            let newFakeMultiplier = 3
+            if( Number(targetMultiplier) <= 3 ) {
+                newFakeMultiplier = Number(targetMultiplier)
+            }
+
+            result = generateRandomNumber(1, newFakeMultiplier)
         } else {
             result = generateRandomNumber(1, Number(targetMultiplier))
         }
