@@ -38,7 +38,14 @@ function generateRandomMultiplier(targetMultiplier, winningChance) {
     const randomNumber = generateRandomNumber(0, 100)
     
     if( randomNumber > Number(winningChance) ) {
-        const result = generateRandomNumber(1, Number(targetMultiplier))
+        let result
+        const loseRandomNumber = generateRandomNumber(0, 100)
+        if( loseRandomNumber < 80 ) {
+            result = generateRandomNumber(1, 4 )
+        } else {
+            result = generateRandomNumber(1, Number(targetMultiplier))
+        }
+        
         return result
     } else {
         const maxMultipliersArr = [2, 2.4, 3, 4, 5, 10, 15, 20, 30]
