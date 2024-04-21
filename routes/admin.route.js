@@ -18,11 +18,12 @@ router.get( '/userWallet/:username', authJwt, async (req, res) => {
         const user = req.user
         const { username } = req.params
 
-        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
-       
+        
+        if( !user.adminAccess && !user.superAdminAccess && !user.streamer ) return res.status(400).json({ message: 'Request not permited' })
         const foundUser = await User.findOne({username: username}).select('wallet username adminAccess')
-
         if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( user.streamer && foundUser._id.toString() !== user._id.toString() ) return res.status(400).json({ message: 'Request not permited' })
 
         res.status(200).json({ user: foundUser.toObject() })
     } catch (error) {
@@ -38,7 +39,7 @@ router.post( '/userWallet/:username', authJwt, async (req, res) => {
         const { currency, amount } = req.body
         const { username } = req.params
 
-        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess && !user.superAdminAccess && !user.streamer ) return res.status(400).json({ message: 'Request not permited' })
 
         const foundCoin = currenciesDb.find( c => c.symbol === currency )
         if( !foundCoin ) return res.status(400).json({ message: 'Currency not supported' })
@@ -47,6 +48,8 @@ router.post( '/userWallet/:username', authJwt, async (req, res) => {
        
         const foundUser = await User.findOne({username: username}).select('wallet username')
         if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( user.streamer && foundUser._id.toString() !== user._id.toString() ) return res.status(400).json({ message: 'Request not permited' })
 
         const formattedValue = parseFloat(amount).toFixed(foundCoin.dicimals)
 
@@ -204,6 +207,69 @@ router.post( '/removeAdmin/:username', authJwt, async (req, res) => {
     }
 })
 
+router.post( '/giveStreamer/:username', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const { username } = req.params
+
+        if( !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+       
+        const foundUser = await User.findOne({username: username}).select('wallet username streamer')
+        if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( foundUser.streamer ) return res.status(400).json({ message: 'User already streamer' })
+
+        await User.findByIdAndUpdate(foundUser._id, {streamer: true})
+
+        res.status(200).send('')
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+router.post( '/removeStreamer/:username', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const { username } = req.params
+
+        if( !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+       
+        const foundUser = await User.findOne({username: username}).select('wallet username streamer')
+        if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( !foundUser.streamer ) return res.status(400).json({ message: 'User is not a streamer' })
+
+        await User.findByIdAndUpdate(foundUser._id, {streamer: false})
+
+        res.status(200).send('')
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+router.post( '/resetIp/:username', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const { username } = req.params
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+       
+        const foundUser = await User.findOne({username: username}).select('username ip')
+        if( !foundUser ) return res.status(400).json({ message: 'User not found' })
+
+        if( foundUser.ip === null ) return res.status(400).json({ message: "User has no ip registered" })
+
+        await User.findByIdAndUpdate(foundUser._id, {ip: null})
+
+        res.status(200).send('')
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
 router.get('/depositLogs/:username', authJwt, async (req, res) => {
     try {
         const user = req.user
@@ -246,7 +312,7 @@ router.get('/usersList', authJwt, async (req, res) => {
     try {
         const user = req.user
 
-        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+        if( !user.adminAccess && !user.superAdminAccess && !user.streamer ) return res.status(400).json({ message: 'Request not permited' })
 
         let page = req.query.page ? parseInt(req.query.page) : 1
         const limit = 10
@@ -254,19 +320,35 @@ router.get('/usersList', authJwt, async (req, res) => {
 
         const usernameFilter = req.query?.filter
 
-        let searchData = usernameFilter ? (
-            {
-                username: {
-                    $regex: usernameFilter,
-                    $options: 'i'
+        let searchData = {}
+
+        if( !!usernameFilter ) {
+            if( user.streamer && (!user.adminAccess && !user.superAdminAccess) ) {
+                searchData = {
+                    _id: user._id,
+                    username: {
+                        $regex: usernameFilter,
+                        $options: 'i'
+                    }
+                }
+            } else {
+                searchData = {
+                    username: {
+                        $regex: usernameFilter,
+                        $options: 'i'
+                    }
                 }
             }
-        ) : (
-            {}
-        )
+        } else {
+            if( user.streamer && (!user.adminAccess && !user.superAdminAccess) ) {
+                searchData = {
+                    _id: user._id
+                }
+            }
+        }
 
         const usersList = await User.find(searchData)
-            .select('adminAccess superAdminAccess createdAt username')
+            .select('adminAccess superAdminAccess streamer createdAt username ip')
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip((page - 1) * limit)

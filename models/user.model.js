@@ -15,11 +15,20 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
     superAdminAccess: {
-        type: Boolean
+        type: Boolean,
+        default: false
+    },
+    streamer: {
+        type: Boolean,
+        default: false
     },
     uuid: {
         type: String,
         required: true
+    },
+    ip: {
+        type: String,
+        default: null
     },
     statisticScoped: [
         {

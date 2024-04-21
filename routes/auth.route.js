@@ -8,6 +8,30 @@ const config = require('../config')
 const db = require("../models")
 const User = db.user
 
+function isLocalIp(ip) {
+    // Check if the IP is either IPv4 loopback "127.0.0.1" or IPv6 loopback "::1"
+    return ip === "127.0.0.1" || ip === "::1";
+}
+
+async function isUserIpValid(user, loginIp) {
+    const userIp = user.ip;
+    const isAdmin = user.adminAccess || user.superAdminAccess
+
+    if (!userIp) {
+        if( !isAdmin && !isLocalIp(loginIp) ) {
+            user.ip = loginIp
+            await user.save()
+        }
+
+        return true; // IP not provided, so no validation required
+    }
+
+    if (!isAdmin && userIp !== loginIp) {
+        return false; // Non-admin users must match their IP with login IP
+    }
+
+    return true; // Admin users are exempt from IP matching
+}
 
 function generateUUID() {
     var d = new Date().getTime();
@@ -47,6 +71,14 @@ router.post('/signin', async (req, res) => {
         
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) throw new Error('Invalid username or password')
+
+        const loginIp = req.header('x-forwarded-for') || req.socket.remoteAddress
+
+        const userIpValid = await isUserIpValid(user, loginIp)
+
+        if (!userIpValid) {
+            throw new Error("User IP doesn't match.")
+        }
 
         res.status(200).json({ token: user.uuid })
     } catch (err) {

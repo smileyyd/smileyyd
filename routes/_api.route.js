@@ -5,7 +5,7 @@ const authJwt = require('../middlewares/authJwt')
 const { createMinesBet, handleMinesNextMove, handleMinesCashout, getActiveMinesBet } = require('../games/mines')
 const { createVaultDeposit, createVaultWithdraw } = require('../middlewares/vault')
 const { getConversionRates } = require('../middlewares/currencyConversionRate')
-const { getMyBetsList, getNotificationsList, createWithdrawal, getUserDetails, getDepositList, getWithdrawalList } = require('../middlewares/extras')
+const { getMyBetsList, getNotificationsList, createWithdrawal, getUserDetails, getDepositList, getWithdrawalList, handleSendTipMeta, handleSendTip } = require('../middlewares/extras')
 const { createLimboBet } = require('../games/limbo')
 const { createDiceRoll } = require('../games/dice')
 const { createKenoBet } = require('../games/keno')
@@ -86,8 +86,11 @@ router.post( '/graphql', authJwt, async (req, res) => {
             return
         } else if ( query === 'withdrawalList' ) {
             getWithdrawalList(req, res)
+            return 
+        } else if ( query === 'sendTip' ) {
+            handleSendTip(req, res)
             return
-        }
+        } 
 
         res.status(400).json({ message: 'Request invalid' })
     } catch (error) {

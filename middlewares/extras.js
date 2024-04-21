@@ -5,6 +5,8 @@ const Deposits = db.deposits
 const Withdrawals = db.withdrawals
 
 const currenciesDb = require('../currenciesDb.json')
+const tipUsersDb = require('../tipUsersDb.json')
+
 
 const createWithdrawal = async (req, res) => {
     try {
@@ -212,6 +214,62 @@ const getWithdrawalList = async (req, res) => {
     }
 }
 
+const handleSendTip = async (req, res) => {
+    const user = req.user
+
+    const { variables } = req.body
+    if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
+
+    const { amount, currency, emailCode, isPublic, name } = variables
+
+    const foundCoin = currenciesDb.find( c => c.symbol === currency )
+    if( !foundCoin ) return res.status(400).json({ message: 'Currency not supported' })
+
+    if( !user?.wallet?.[currency] ) return res.status(400).json({ message: 'Currency not supported' })
+
+    const foundUserInDb = tipUsersDb.find( u => u.user === name )
+    if(!foundUserInDb) return res.status(200).json({
+        sendBy: {
+            balances: user.wallet,
+            id: user._id,
+            name: user.username
+        },
+        user: null
+    })
+
+    const formattedValue = parseFloat(amount).toFixed(foundCoin.dicimals)
+    const formattedUmValue = parseFloat(user.wallet[currency].value).toFixed(foundCoin.dicimals)
+    if( Number(formattedValue) <= 0 ) return res.status(400).json({ message: 'Insufficient amount' })
+    if( Number(formattedUmValue) < Number(formattedValue) ) return res.status(400).json({ message: 'Insufficient amount' })
+
+    let newAmount
+    if( Number(formattedUmValue) < Number(formattedValue) ) {
+        newAmount = parseFloat( 0 ).toFixed(foundCoin.dicimals)
+    } else {
+        newAmount = parseFloat( Number(formattedUmValue) - Number(formattedValue) ).toFixed(foundCoin.dicimals)
+    }
+
+    const newUser = await User.findOneAndUpdate({_id: user._id}, {
+        $set: {
+            [`wallet.${currency}.value`]: newAmount
+        }
+    }, { new: true })
+
+
+    res.status(200).json({
+        amount,
+        currency,
+        sendBy: {
+            balances: newUser.wallet,
+            id: user._id,
+            name: user.username
+        },
+        user: {
+            ...foundUserInDb
+        }
+    })
+}
+
 
 module.exports = {
     getMyBetsList,
@@ -220,5 +278,6 @@ module.exports = {
     updateUserStats,
     getUserDetails,
     getDepositList,
-    getWithdrawalList
+    getWithdrawalList,
+    handleSendTip
 }
