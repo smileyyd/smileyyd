@@ -349,15 +349,30 @@ router.get('/usersList', authJwt, async (req, res) => {
 
         const usersList = await User.find(searchData)
             .select('adminAccess superAdminAccess streamer createdAt username ip')
+            .populate('createdBy', 'username')
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip((page - 1) * limit)
             .exec()
+
+        const newUsersList = usersList.map( user => {
+            const userObject = user.toObject()
+            
+            if( !userObject.createdBy ) {
+                return {
+                    ...userObject,
+                    createdBy: {
+                        username: 'Deleted User'
+                    }
+                }
+            }
+            return userObject
+        } )
     
         const totalCount = await User.countDocuments(searchData)
     
         res.status(200).json({
-            users: usersList,
+            users: newUsersList,
             totalPages: Math.ceil(totalCount / limit),
             currentPage: page,
             filter: usernameFilter ? usernameFilter : ''

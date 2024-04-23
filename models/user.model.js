@@ -37,9 +37,13 @@ const UserSchema = new mongoose.Schema({
             currency: String,
             losses: Number,
             ties: Number,
-            wins: Number,
+            wins: Number
         }
     ],
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     createdAt: {
         type: Date,
         default: Date.now,

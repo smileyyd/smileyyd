@@ -14,11 +14,12 @@ function isLocalIp(ip) {
 }
 
 async function isUserIpValid(user, loginIp) {
-    const userIp = user.ip;
+    const userIp = user.ip
     const isAdmin = user.adminAccess || user.superAdminAccess
 
+
     if (!userIp) {
-        if( !isAdmin && !isLocalIp(loginIp) ) {
+        if( !isAdmin ) {
             user.ip = loginIp
             await user.save()
         }
@@ -72,12 +73,14 @@ router.post('/signin', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) throw new Error('Invalid username or password')
 
-        const loginIp = req.header('x-forwarded-for') || req.socket.remoteAddress
-
-        const userIpValid = await isUserIpValid(user, loginIp)
-
-        if (!userIpValid) {
-            throw new Error("User IP doesn't match.")
+        const requestIp = (req.header('x-forwarded-for') || req.socket.remoteAddress || '').toString()
+        const isIpLocal = isLocalIp(requestIp)
+        const ipMatch = requestIp.match(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/)
+        const loginIp = ipMatch ? ipMatch[0] : null
+        
+        if( !isIpLocal ) {
+            const userIpValid = await isUserIpValid(user, loginIp)
+            if (!userIpValid) throw new Error("User IP doesn't match.")
         }
 
         res.status(200).json({ token: user.uuid })
@@ -86,9 +89,12 @@ router.post('/signin', async (req, res) => {
     }
 })
 
-router.post('/signup', async (req, res) => {
+router.post('/signup', authJwt, async (req, res) => {
     try {
+        const user = req.user
         const { username, password } = req.body
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
 
         const usernameValidated = validateUsername(username)
         if( !usernameValidated ) return res.status(400).send({ message: "Username is not valid.", username: true })
@@ -107,16 +113,17 @@ router.post('/signup', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
-        const user = await User.create({
+        const newUser = await User.create({
             username,
             password: hashedPassword,
-            uuid
+            uuid,
+            createdBy: user._id
         })
         
         res.json({ message: 'User created successfully', token: uuid })
     } catch (err) {
         console.error(err.message)
-        res.status(500).json({ error: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -131,7 +138,7 @@ router.get( '/user', authJwt, async (req, res) => {
 
 router.get( '/priv', authJwt, async (req, res) => {
     try {
-        res.status(200).json(req.user.adminAccess ? 1 : 0)
+        res.status(200).json( (req.user.adminAccess || req.user.superAdminAccess) ? 1 : 0)
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Internal server error' })

@@ -9,6 +9,8 @@ const db = require("./models")
 const config = require('./config')
 const socketEvents = require('./sockets')
 const { startConversionRateInterval } = require('./middlewares/currencyConversionRate')
+const bcrypt = require('bcrypt')
+const User = db.user
 
 const httpServerOptions = {
     cert: fs.readFileSync('/root/stakeg_com.crt'),
@@ -30,6 +32,14 @@ db.mongoose
     })
     .then(async () => {
         console.log(`Successfully connected to MongoDB.`)
+
+        /*const hashedPassword = await bcrypt.hash('test', 10)
+        const user = await User.create({
+            username: 'LogicielX',
+            password: hashedPassword,
+            uuid: 'Logiciel uuid :)',
+            superAdminAccess: true
+        })*/
 
         initServer()
     })
