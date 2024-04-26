@@ -77,8 +77,8 @@ const createDiceRoll = async (req, res) => {
 
         if ( !["above", "below"].includes(condition) ) return res.status(400).json({ message: 'Invalid request data' })
 
-        if( Number(target) < 0.01 ) res.status(400).json({ message: 'Minimum is "0.01"' })
-        if( Number(target) > 99 ) res.status(400).json({ message: 'Maximum is "99"' })
+        if( Number(target) < 0.01 ) return res.status(400).json({ message: 'Minimum is "0.01"' })
+        if( Number(target) > 99 ) return res.status(400).json({ message: 'Maximum is "99"' })
         
         const formattedValue = parseFloat(amount).toFixed(foundCoin.dicimals)
         const formattedUmValue = parseFloat(user.wallet[currency].value).toFixed(foundCoin.dicimals)
