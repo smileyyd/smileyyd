@@ -338,7 +338,7 @@ const updateStatisticScope = (user, type, value) => {
         } )
 
         user.statisticScoped[statIndex][type] = value
-        user.statisticScoped[statIndex].bets = user.statisticScoped[statIndex].wins + user.statisticScoped[statIndex].losses + user.statisticScoped[statIndex].ties
+        user.statisticScoped[statIndex].bets = user.statisticScoped[statIndex].wins + user.statisticScoped[statIndex].losses + (user.statisticScoped[statIndex]?.ties === undefined ? 0 : user.statisticScoped[statIndex].ties)
     } else {
         user.statisticScoped.forEach( stat => {
             stat[type] = 0
@@ -357,7 +357,7 @@ const updateStatisticScope = (user, type, value) => {
 
         user.statisticScoped.push({
             ...newStatistic,
-            bets: newStatistic.wins + newStatistic.losses + newStatistic.ties
+            bets: newStatistic.wins + newStatistic.losses + (newStatistic?.ties === undefined ? 0 : newStatistic.ties)
         })
     }
 }
