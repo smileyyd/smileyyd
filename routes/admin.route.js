@@ -304,7 +304,116 @@ router.get('/depositLogs/:username', authJwt, async (req, res) => {
         })
     } catch (err) {
         console.error(err.message)
-        res.status(500).send('Server Error')
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+router.get('/userStats/:username', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const username = req.params.username
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+    
+
+        const targetUser = await User.findOne({username: username}).select('username createdAt statisticScoped')
+        if(!targetUser) return res.status(400).json({ message: 'Invalid request data' })
+    
+        res.status(200).json({
+            user: targetUser
+        })
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+const updateStatisticScope = (user, type, value) => {
+    const statIndex = user.statisticScoped.findIndex(element => element.currency === 'usdc')
+
+    if (statIndex !== -1) {        
+        user.statisticScoped.forEach( stat => {
+            stat[type] = 0
+            stat.bets = 0
+        } )
+
+        user.statisticScoped[statIndex][type] = value
+        user.statisticScoped[statIndex].bets = user.statisticScoped[statIndex].wins + user.statisticScoped[statIndex].losses + user.statisticScoped[statIndex].ties
+    } else {
+        user.statisticScoped.forEach( stat => {
+            stat[type] = 0
+            stat.bets = 0
+        } )
+
+        const newStatistic = {
+            currency: 'usdc',
+            wins: 0,
+            losses: 0,
+            ties: 0,
+            betAmount: 0,
+            bets: 0,
+            ...{[type]: value}
+        }
+
+        user.statisticScoped.push({
+            ...newStatistic,
+            bets: newStatistic.wins + newStatistic.losses + newStatistic.ties
+        })
+    }
+}
+
+router.post('/userStats/:username/:statType', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const username = req.params.username
+        const statType = req.params.statType
+        const requestBody = req.body
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        if(![
+            "createdAt",
+            "wins",
+            "losses",
+            "betAmount"
+        ].includes(statType)) return res.status(400).json({ message: 'Invalid request data' }) 
+    
+
+        const targetUser = await User.findOne({username: username}).select('createdAt statisticScoped')
+        if(!targetUser) return res.status(400).json({ message: 'Invalid request data' })
+
+
+        if( statType === "createdAt" ) {
+            if( isNaN(new Date(requestBody.createdAt)) ) return res.status(400).json({ message: 'Invalid request data' })
+
+            targetUser.createdAt = new Date(requestBody.createdAt).getTime()
+
+            const newTargetUser = await targetUser.save()
+
+            res.status(200).json({
+                createdAt: newTargetUser.createdAt
+            })
+
+            return
+        } else if ( ["wins", "losses", "betAmount"].includes(statType) ) {
+            if( isNaN(requestBody[statType]) ) return res.status(400).json({ message: 'Invalid request data' })
+
+            updateStatisticScope(targetUser, statType, requestBody[statType])
+
+            await targetUser.save()
+
+            res.status(200).json({
+                [statType]: requestBody[statType]
+            })
+
+            return
+        }
+    
+
+        res.status(500).json({ message: 'Invalid request data' }) 
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json({ message: 'Internal server error' })
     }
 })
 
@@ -379,7 +488,7 @@ router.get('/usersList', authJwt, async (req, res) => {
         })
     } catch (err) {
         console.error(err.message)
-        res.status(500).send('Server Error')
+        res.status(500).json({ message: 'Internal server error' })
     }
 })
 
@@ -400,7 +509,7 @@ router.get('/useruuid/:username', authJwt, async (req, res) => {
         })
     } catch (err) {
         console.error(err.message)
-        res.status(500).send('Server Error')
+        res.status(500).json({ message: 'Internal server error' })
     }
 })
 
