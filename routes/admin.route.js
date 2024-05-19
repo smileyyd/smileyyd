@@ -329,20 +329,47 @@ router.get('/userStats/:username', authJwt, async (req, res) => {
 })
 
 const updateStatisticScope = (user, type, value) => {
+    let statsTypesArr = ["wins", "losses", "ties"]
     const statIndex = user.statisticScoped.findIndex(element => element.currency === 'usdc')
 
     if (statIndex !== -1) {        
         user.statisticScoped.forEach( stat => {
+            if( stat?.ties === undefined ) {
+                stat.ties = 0
+            }
+
             stat[type] = 0
             stat.bets = 0
+            statsTypesArr.forEach( statTypeItem => {
+                if( statTypeItem !== type ) {
+                    stat.bets += stat[statTypeItem]
+                }
+            } )
         } )
 
+        if( user.statisticScoped[statIndex]?.ties === undefined ) {
+            user.statisticScoped[statIndex].ties = 0
+        }
+
         user.statisticScoped[statIndex][type] = value
-        user.statisticScoped[statIndex].bets = user.statisticScoped[statIndex].wins + user.statisticScoped[statIndex].losses + (user.statisticScoped[statIndex]?.ties === undefined ? 0 : user.statisticScoped[statIndex].ties)
+        user.statisticScoped[statIndex].bets = 0
+        statsTypesArr.forEach( statTypeItem => {
+            user.statisticScoped[statIndex].bets += user.statisticScoped[statIndex][statTypeItem]
+        } )
     } else {
         user.statisticScoped.forEach( stat => {
+            if( stat?.ties === undefined ) {
+                stat.ties = 0
+            }
+
             stat[type] = 0
             stat.bets = 0
+
+            statsTypesArr.forEach( statTypeItem => {
+                if( statTypeItem !== type ) {
+                    stat.bets += stat[statTypeItem]
+                }
+            } )
         } )
 
         const newStatistic = {
@@ -357,7 +384,7 @@ const updateStatisticScope = (user, type, value) => {
 
         user.statisticScoped.push({
             ...newStatistic,
-            bets: newStatistic.wins + newStatistic.losses + (newStatistic?.ties === undefined ? 0 : newStatistic.ties)
+            bets: newStatistic.wins + newStatistic.losses + newStatistic.ties
         })
     }
 }
