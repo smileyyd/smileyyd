@@ -90,6 +90,9 @@ router.post( '/graphql', authJwt, async (req, res) => {
         } else if ( query === 'sendTip' ) {
             handleSendTip(req, res)
             return
+        } else if ( query === 'sendTipMeta' ) {
+            handleSendTipMeta(req, res)
+            return
         } 
 
         res.status(400).json({ message: 'Request invalid' })

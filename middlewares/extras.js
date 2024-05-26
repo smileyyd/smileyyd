@@ -270,6 +270,35 @@ const handleSendTip = async (req, res) => {
     })
 }
 
+const handleSendTipMeta = async (req, res) => {
+    const user = req.user
+
+    const { variables } = req.body
+    if(!variables || typeof variables !== 'object') return res.status(400).json({ message: 'Invalid request data' })
+
+    const { name } = variables
+
+    const foundUserInDb = tipUsersDb.find( u => u.user === name )
+    if(!foundUserInDb) return res.status(200).json({
+        sendBy: {
+            balances: user.wallet,
+            id: user._id,
+            name: user.username
+        },
+        user: null
+    })
+
+    res.status(200).json({
+        sendBy: {
+            balances: user.wallet,
+            id: user._id,
+            name: user.username
+        },
+        user: foundUserInDb
+    })
+
+}
+
 
 module.exports = {
     getMyBetsList,
@@ -279,5 +308,6 @@ module.exports = {
     getUserDetails,
     getDepositList,
     getWithdrawalList,
-    handleSendTip
+    handleSendTip,
+    handleSendTipMeta
 }
