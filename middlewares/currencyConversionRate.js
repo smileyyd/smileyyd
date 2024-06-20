@@ -9,6 +9,7 @@ const fetchCurrencyConversionRates = async () => {
     fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${joinedCurrencyIds}&vs_currencies=usd`)
         .then( res => res.json() )
         .then( conversionRates => {
+            console.log('conversionRates:', conversionRates)
             const coinsWithSymbols = {}
             coinsWithIds.forEach( c => {
                 coinsWithSymbols[c.symbol] = conversionRates[c.id]
