@@ -1,6 +1,67 @@
 const currenciesDb = require('../currenciesDb.json')
 
-let currencyConversionRates
+let currencyConversionRates = {
+    "btc": {
+        "usd": 64950
+    },
+    "eth": {
+        "usd": 3514.99
+    },
+    "ltc": {
+        "usd": 74.65
+    },
+    "usdt": {
+        "usd": 0.99937
+    },
+    "doge": {
+        "usd": 0.124501
+    },
+    "bch": {
+        "usd": 389.66
+    },
+    "xrp": {
+        "usd": 0.488794
+    },
+    "eos": {
+        "usd": 0.569832
+    },
+    "trx": {
+        "usd": 0.1168
+    },
+    "bnb": {
+        "usd": 590.83
+    },
+    "usdc": {
+        "usd": 0.999877
+    },
+    "ape": {
+        "usd": 0.920548
+    },
+    "busd": {
+        "usd": 0.99513
+    },
+    "cro": {
+        "usd": 0.094015
+    },
+    "dai": {
+        "usd": 0.999401
+    },
+    "link": {
+        "usd": 14.3
+    },
+    "sand": {
+        "usd": 0.00085123
+    },
+    "shib": {
+        "usd": 0.00001813
+    },
+    "uni": {
+        "usd": 10.12
+    },
+    "matic": {
+        "usd": 0.575319
+    }
+}
 
 const fetchCurrencyConversionRates = async () => {
     const coinsWithIds = currenciesDb.filter( c => !!c.id )
@@ -22,9 +83,9 @@ const fetchCurrencyConversionRates = async () => {
 }
 
 const startConversionRateInterval = () => {
-    fetchCurrencyConversionRates()
+    //fetchCurrencyConversionRates()
     setInterval( () => {
-        fetchCurrencyConversionRates()
+        //fetchCurrencyConversionRates()
     },180000 )
 }
 
