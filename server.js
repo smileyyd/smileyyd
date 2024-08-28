@@ -12,14 +12,14 @@ const { startConversionRateInterval } = require('./middlewares/currencyConversio
 const bcrypt = require('bcrypt')
 const User = db.user
 
-/*const httpServerOptions = {
+const httpServerOptions = {
     cert: fs.readFileSync('/root/stakeg_com.crt'),
     ca: fs.readFileSync('/root/stakeg_com.ca-bundle'),
     key: fs.readFileSync('/root/stakeg.key')
 }
 
-const httpServer = http.createServer(httpServerOptions, app)*/
-const httpServer = http.createServer(app)
+const httpServer = http.createServer(httpServerOptions, app)
+//const httpServer = http.createServer(app)
 
 
 
