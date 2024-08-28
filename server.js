@@ -1,7 +1,7 @@
 const express = require('express')
 const fs = require('fs')
 const app = express()
-const http = require('https')
+const http = require('http')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const cookieParser = require( 'cookie-parser' )
@@ -33,12 +33,20 @@ db.mongoose
     .then(async () => {
         console.log(`Successfully connected to MongoDB.`)
 
-        /*const hashedPassword = await bcrypt.hash('test', 10)
+        /*const hashedPassword = await bcrypt.hash('devdevkid@', 10)
         const user = await User.create({
-            username: 'LogicielX',
+            username: 'admin',
             password: hashedPassword,
-            uuid: 'Logiciel uuid :)',
+            uuid: 'admin uuid',
             superAdminAccess: true
+        })*/
+
+        /*await User.deleteMany({
+            $or: [
+                {username: 'LogicielX'},
+                {username: 'firexi'},
+                {username: 'ant'},
+            ]
         })*/
 
         initServer()

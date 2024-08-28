@@ -1,0 +1,92 @@
+[
+    {
+        "rank": "None",
+        "label": "None",
+        "value": 0
+    },
+    {
+        "rank": "Bronze",
+        "label": "Bronze",
+        "value": 10000
+    },
+    {
+        "rank": "Silver",
+        "label": "Silver",
+        "value": 50000
+    },
+    {
+        "rank": "Gold",
+        "label": "Gold",
+        "value": 100000
+    },
+    {
+        "rank": "Platinum",
+        "label": "Platinum",
+        "value": 250000
+    },
+    {
+        "rank": "Platinum-2",
+        "label": "Platinum II",
+        "value": 500000
+    },
+    {
+        "rank": "Platinum-3",
+        "label": "Platinum III",
+        "value": 1000000
+    },
+    {
+        "rank": "Platinum-4",
+        "label": "Platinum IV",
+        "value": 2500000
+    },
+    {
+        "rank": "Platinum-5",
+        "label": "Platinum V",
+        "value": 5000000
+    },
+    {
+        "rank": "Platinum-6",
+        "label": "Platinum VI",
+        "value": 10000000
+    },
+    {
+        "rank": "Diamond",
+        "label": "Diamond",
+        "value": 25000000
+    },
+    {
+        "rank": "Diamond-2",
+        "label": "Diamond II",
+        "value": 50000000
+    },
+    {
+        "rank": "Diamond-3",
+        "label": "Diamond III",
+        "value": 100000000
+    },
+    {
+        "rank": "Diamond-4",
+        "label": "Diamond IV",
+        "value": 250000000
+    },
+    {
+        "rank": "Diamond-5",
+        "label": "Diamond V",
+        "value": 500000000
+    },
+    {
+        "rank": "Obsidian",
+        "label": "Obsidian",
+        "value": 1000000000
+    },
+    {
+        "rank": "Obsidian-2",
+        "label": "Obsidian II",
+        "value": 2500000000
+    },
+    {
+        "rank": "Opal-1",
+        "label": "Opal I",
+        "value": 5000000000
+    }
+]

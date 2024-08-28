@@ -24,6 +24,12 @@
         "id": "tether"
     },
     {
+        "symbol": "sol",
+        "prefix": null,
+        "dicimals": 8,
+        "id": "solana"
+    },
+    {
         "symbol": "doge",
         "prefix": null,
         "dicimals": 8,

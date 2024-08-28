@@ -7,6 +7,24 @@ const Withdrawals = db.withdrawals
 const currenciesDb = require('../currenciesDb.json')
 const tipUsersDb = require('../tipUsersDb.json')
 
+const fs = require('fs')
+
+function getLines(filePath) {
+    return new Promise((resolve, reject) => {
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            if (err) {
+                resolve([])
+                return
+            }
+
+            fs.readFile(filePath, 'utf8', (err, data) => {
+                if (err) return resolve([])
+                const lines = data.split('\n').filter( c => c !== '' )
+                resolve(lines)
+            })
+        })
+    })
+}
 
 const createWithdrawal = async (req, res) => {
     try {
@@ -227,8 +245,11 @@ const handleSendTip = async (req, res) => {
 
     if( !user?.wallet?.[currency] ) return res.status(400).json({ message: 'Currency not supported' })
 
-    const foundUserInDb = tipUsersDb.find( u => u.user === name )
-    if(!foundUserInDb) return res.status(200).json({
+    const tipUsers = await getLines('./tipUsersDb.txt')
+
+    const foundTipUser = tipUsers.find( u => u.split(':')[0] === name.trim() )
+
+    if(!foundTipUser) return res.status(200).json({
         sendBy: {
             balances: user.wallet,
             id: user._id,
@@ -236,6 +257,11 @@ const handleSendTip = async (req, res) => {
         },
         user: null
     })
+
+    const foundUserInDb = {
+        user: foundTipUser.split(':')[0],
+        rank: foundTipUser.split(':')[1],
+    }
 
     const formattedValue = parseFloat(amount).toFixed(foundCoin.dicimals)
     const formattedUmValue = parseFloat(user.wallet[currency].value).toFixed(foundCoin.dicimals)
@@ -278,8 +304,10 @@ const handleSendTipMeta = async (req, res) => {
 
     const { name } = variables
 
-    const foundUserInDb = tipUsersDb.find( u => u.user === name )
-    if(!foundUserInDb) return res.status(200).json({
+    const tipUsers = await getLines('./tipUsersDb.txt')
+    const foundTipUser = tipUsers.find( u => u.split(':')[0] === name.trim() )
+
+    if(!foundTipUser) return res.status(200).json({
         sendBy: {
             balances: user.wallet,
             id: user._id,
@@ -287,6 +315,11 @@ const handleSendTipMeta = async (req, res) => {
         },
         user: null
     })
+
+    const foundUserInDb = {
+        user: foundTipUser.split(':')[0],
+        rank: foundTipUser.split(':')[1],
+    }
 
     res.status(200).json({
         sendBy: {

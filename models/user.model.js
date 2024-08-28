@@ -89,6 +89,16 @@ const UserSchema = new mongoose.Schema({
                 default: 0
             }
         },
+        sol: {
+            value:{
+                type: Number,
+                default: 0
+            },
+            vault:{
+                type: Number,
+                default: 0
+            }
+        },
         doge: {
             value:{
                 type: Number,

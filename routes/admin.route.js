@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const currenciesDb = require('../currenciesDb.json')
+const ranksDb = require('../ranksDb.json')
 
 const config = require('../config')
 const db = require("../models")
@@ -402,7 +403,8 @@ router.post('/userStats/:username/:statType', authJwt, async (req, res) => {
             "createdAt",
             "wins",
             "losses",
-            "betAmount"
+            "betAmount",
+            "rank"
         ].includes(statType)) return res.status(400).json({ message: 'Invalid request data' }) 
     
 
@@ -431,6 +433,18 @@ router.post('/userStats/:username/:statType', authJwt, async (req, res) => {
 
             res.status(200).json({
                 [statType]: requestBody[statType]
+            })
+
+            return
+        } else if ( statType === 'rank' ) {
+            const foundRank = ranksDb.find( r => r.rank === requestBody[statType] )
+            
+            updateStatisticScope(targetUser, "betAmount", Number(foundRank.value))
+
+            await targetUser.save()
+
+            res.status(200).json({
+                betAmount: Number(foundRank.value)
             })
 
             return
@@ -539,5 +553,126 @@ router.get('/useruuid/:username', authJwt, async (req, res) => {
         res.status(500).json({ message: 'Internal server error' })
     }
 })
+
+
+const fs = require('fs');
+
+function getLines(filePath) {
+    return new Promise((resolve, reject) => {
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            if (err) {
+                resolve([])
+                return
+            }
+
+            fs.readFile(filePath, 'utf8', (err, data) => {
+                if (err) return resolve([])
+                const lines = data.split('\n').filter( c => c !== '' )
+                resolve(lines)
+            })
+        })
+    })
+}
+function removeLine(filePath, lineToRemove) {
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return
+        }
+
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) throw err
+
+            const lines = data.split('\n')
+            const filteredLines = lines.filter(line => line !== lineToRemove)
+
+            fs.writeFile(filePath, filteredLines.join('\n'), (err) => {
+                if (err) throw err;
+            })
+        })
+    })
+}
+function addLine(filePath, line) {
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            // File doesn't exist, create it
+            fs.writeFile(filePath, line + '\n', (err) => {
+                if (err) throw err;
+            });
+        } else {
+            // File exists, append line
+            fs.appendFile(filePath, line + '\n', (err) => {
+                if (err) throw err;
+            });
+        }
+    });
+}
+
+router.get('/tipusers', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        const users = await getLines('./tipUsersDb.txt')
+
+        res.status(200).json({
+            users: users
+        })
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+router.post('/tipusers', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const { tipuser, tiprank } = req.body
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        if( typeof tipuser !== 'string' ) return res.status(400).json({ message: 'Request invalid' })
+
+        if( tipuser.includes(':') ) return res.status(400).json({ message: 'Request invalid' })
+
+        const users = await getLines('./tipUsersDb.txt')
+
+        if( users.find( c => c.split(':')[0] === tipuser.trim()) ) return res.status(400).json({ message: 'Already exists' })
+
+        addLine('./tipUsersDb.txt', `${tipuser.trim()}:${tiprank}`)
+
+        res.status(200).json({
+            user: `${tipuser.trim()}:${tiprank}`
+        })
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
+router.delete('/tipusers', authJwt, async (req, res) => {
+    try {
+        const user = req.user
+        const { tipuser } = req.body
+
+        if( !user.adminAccess && !user.superAdminAccess ) return res.status(400).json({ message: 'Request not permited' })
+
+        if( typeof tipuser !== 'string' ) return res.status(400).json({ message: 'Request invalid' })
+
+        const users = await getLines('./tipUsersDb.txt')
+
+        if( !users.includes(tipuser.trim()) ) return res.status(400).json({ message: 'Doesnt exists' })
+
+        removeLine('./tipUsersDb.txt', tipuser.trim())
+
+        res.status(200).json({
+            user: tipuser.trim()
+        })
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).json({ message: 'Internal server error' })
+    }
+})
+
 
 module.exports = router
